@@ -4,7 +4,7 @@
 
 TEST(InterpreterTest, RunEmptyProgram) {
     Interpreter interp;
-    auto root = std::make_shared<ASTNode>(ASTNodeType::Program);
+    auto root = make_shared<ASTNode>(ASTNodeType::Program);
     EXPECT_NO_THROW(interp.run(root));
 }
 
