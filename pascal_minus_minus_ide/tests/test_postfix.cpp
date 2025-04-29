@@ -3,7 +3,7 @@
 
 TEST(PostfixCalculatorTest, SimpleSum) {
     PostfixCalculator calc;
-    std::vector<std::string> postfix = {"2", "3", "+"};
+    vector<string> postfix = {"2", "3", "+"};
     EXPECT_DOUBLE_EQ(calc.eval(postfix), 5.0);
 }
 
