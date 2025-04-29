@@ -3,7 +3,7 @@
 
 TEST(LexerTest, TokenizeSimple) {
     Lexer lexer;
-    std::string code = "program test; var x := 42;";
+    string code = "program test; var x := 42;";
     auto tokens = lexer.tokenize(code);
 
     ASSERT_GE(tokens.size(), 7);
