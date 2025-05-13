@@ -1,20 +1,27 @@
 #include <gtest/gtest.h>
-#include "symbol_table.h"
+#include "postfix.h"
 
-TEST(SymbolTableTest, InsertFail) {
-    SymbolTable table;
-    // Попытка вставить дважды одну и ту же переменную
-    EXPECT_TRUE(table.insert("a", SymbolType::Variable, 1));
-    EXPECT_FALSE(table.insert("a", SymbolType::Variable, 2));
+TEST(PostfixTest, ConvertSimpleExpression) {
+    PostfixConverter converter;
+    EXPECT_EQ(converter.toPostfix("2 + 3"), "2 3 +");
 }
 
-TEST(SymbolTableTest, LookupFail) {
-    SymbolTable table;
-    SymbolInfo info;
-    EXPECT_FALSE(table.lookup("not_exist", info));
+TEST(PostfixTest, ConvertComplexExpression) {
+    PostfixConverter converter;
+    EXPECT_EQ(converter.toPostfix("2 + 3 * 4"), "2 3 4 * +");
 }
 
-TEST(SymbolTableTest, UpdateFail) {
-    SymbolTable table;
-    EXPECT_FALSE(table.update("not_exist", 42));
+TEST(PostfixTest, EvaluateSimple) {
+    PostfixEvaluator evaluator;
+    EXPECT_EQ(evaluator.evaluate("2 3 +"), 5);
+}
+
+TEST(PostfixTest, EvaluateComplex) {
+    PostfixEvaluator evaluator;
+    EXPECT_EQ(evaluator.evaluate("2 3 4 * +"), 14);
+}
+
+TEST(PostfixTest, ThrowsOnInvalid) {
+    PostfixEvaluator evaluator;
+    EXPECT_THROW(evaluator.evaluate("2 +"), std::runtime_error);
 }

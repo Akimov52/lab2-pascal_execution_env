@@ -1,0 +1,8 @@
+﻿  interpreter.cpp
+  lexer.cpp
+  main.cpp
+  parser.cpp
+  postfix.cpp
+  symbol_table.cpp
+  Создание кода...
+  pascal_minus_minus_ide.vcxproj -> C:\Users\users\source\repos\pascal_minus_minus_ide\x64\Debug\pascal_minus_minus_ide.exe

@@ -1,21 +1,40 @@
 #include "symbol_table.h"
 
-bool SymbolTable::insert(const std::string& name, SymbolType type, const SymbolValue& value) {
-    if (table.find(name) != table.end()) return false;
-    table[name] = SymbolInfo{type, name, value};
-    return true;
+// Конструктор SymbolInfo
+SymbolInfo::SymbolInfo(string n, string t, string v)
+    : name(n), type(t), value(v), table(nullptr) {}
+
+// Конструктор SymbolTable
+SymbolTable::SymbolTable() {}
+
+// Метод для добавления символа
+void SymbolTable::addSymbol(const SymbolInfo& symbol) {
+    symbols.push_back(make_shared<SymbolInfo>(symbol));
 }
 
-bool SymbolTable::lookup(const std::string& name, SymbolInfo& out) const {
-    auto it = table.find(name);
-    if (it == table.end()) return false;
-    out = it->second;
-    return true;
+// Метод для поиска символа
+SymbolInfo* SymbolTable::findSymbol(const string& name) {
+    for (auto& symbol : symbols) {
+        if (symbol->name == name) {
+            return symbol.get();
+        }
+    }
+    return nullptr;
 }
 
-bool SymbolTable::update(const std::string& name, const SymbolValue& value) {
-    auto it = table.find(name);
-    if (it == table.end()) return false;
-    it->second.value = value;
-    return true;
+// Метод для удаления символа
+void SymbolTable::removeSymbol(const string& name) {
+    auto it = remove_if(symbols.begin(), symbols.end(),
+        [&name](const shared_ptr<SymbolInfo>& symbol) {
+            return symbol->name == name;
+        });
+    symbols.erase(it, symbols.end());
+}
+
+// Метод для вывода таблицы символов
+void SymbolTable::printTable() {
+    for (const auto& symbol : symbols) {
+        cout << "Name: " << symbol->name << ", Type: " << symbol->type
+                  << ", Value: " << symbol->value << endl;
+    }
 }

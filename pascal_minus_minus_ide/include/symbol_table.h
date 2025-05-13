@@ -1,25 +1,31 @@
-#ifndef SYMBOL_TABLE_H
-#define SYMBOL_TABLE_H
+#pragma once
+
+#include <iostream>
 #include <string>
-#include <unordered_map>
-#include <variant>
+#include <vector>
+#include <memory>
 
-enum class SymbolType { Variable, Constant };
-using SymbolValue = std::variant<int, double, std::string>;
+using namespace std;
 
-struct SymbolInfo {
-    SymbolType type;
-    std::string name;
-    SymbolValue value;
+class SymbolInfo {
+public:
+    string name;
+    string type;
+    string value;
+    shared_ptr<SymbolInfo> table;
+
+    SymbolInfo(string n, string t, string v);
 };
 
 class SymbolTable {
 public:
-    bool insert(const std::string& name, SymbolType type, const SymbolValue& value);
-    bool lookup(const std::string& name, SymbolInfo& out) const;
-    bool update(const std::string& name, const SymbolValue& value);
-private:
-    std::unordered_map<std::string, SymbolInfo> table;
-};
+    SymbolTable();
 
-#endif // SYMBOL_TABLE_H
+    void addSymbol(const SymbolInfo& symbol);
+    SymbolInfo* findSymbol(const string& name);
+    void removeSymbol(const string& name);
+    void printTable();
+    
+private:
+    vector<shared_ptr<SymbolInfo>> symbols;
+};

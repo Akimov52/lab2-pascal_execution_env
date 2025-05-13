@@ -1,0 +1,10 @@
+^C:\USERS\USERS\SOURCE\REPOS\PASCAL_MINUS_MINUS_IDE\BUILD\CMAKEFILES\A1F89B978A8BFF82734B88E058A9EC58\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/users/source/repos/pascal_minus_minus_ide -BC:/Users/users/source/repos/pascal_minus_minus_ide/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/users/source/repos/pascal_minus_minus_ide/build/pascal_minus_minus_ide.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
