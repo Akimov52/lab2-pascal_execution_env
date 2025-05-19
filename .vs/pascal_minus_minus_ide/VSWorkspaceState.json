@@ -1,0 +1,8 @@
+{
+  "OutputFoldersPerTargetSystem": {
+    "Local Machine": [
+      "pascal_minus_minus_ide\\out\\build\\x64-Debug",
+      "pascal_minus_minus_ide\\out\\install\\x64-Debug"
+    ]
+  }
+}

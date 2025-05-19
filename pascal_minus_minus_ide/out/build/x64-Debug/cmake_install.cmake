@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/users/source/repos/pascal_minus_minus_ide
+# Install script for directory: D:/Проекты/lab2-pascal_execution_env/pascal_minus_minus_ide
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Users/users/source/repos/pascal_minus_minus_ide/out/install/x64-Debug")
+  set(CMAKE_INSTALL_PREFIX "D:/Проекты/lab2-pascal_execution_env/pascal_minus_minus_ide/out/install/x64-Debug")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -47,6 +47,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-  file(WRITE "C:/Users/users/source/repos/pascal_minus_minus_ide/out/build/x64-Debug/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "D:/Проекты/lab2-pascal_execution_env/pascal_minus_minus_ide/out/build/x64-Debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
