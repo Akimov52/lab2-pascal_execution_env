@@ -67,75 +67,81 @@ shared_ptr<ASTNode> Parser::parseBlock() {
 // Разбор секции констант
 shared_ptr<ASTNode> Parser::parseConstSection() {
     expect(TokenType::Const, "Ожидалось 'const'");
-    auto node = make_shared<ASTNode>(ASTNodeType::ConstDecl);
+    auto section = make_shared<ASTNode>(ASTNodeType::ConstSection);
     while (current().type == TokenType::Identifier) {
         string name = current().value;
         expect(TokenType::Identifier, "Ожидался идентификатор");
+        if (match(TokenType::Colon)) {
+            expect(TokenType::Identifier, "Ожидался тип константы");
+        }
         expect(TokenType::Equal, "Ожидался '='");
         auto value = parseExpression();
         expect(TokenType::Semicolon, "Ожидалась ';'");
         auto decl = make_shared<ASTNode>(ASTNodeType::ConstDecl, name);
         decl->children.push_back(value);
-        node->children.push_back(decl);
+        section->children.push_back(decl);
     }
-    return node;
+    return section;
 }
 
 // Разбор секции переменных: var x, y: integer;
 shared_ptr<ASTNode> Parser::parseVarSection() {
     expect(TokenType::Var, "Ожидалось 'var'");
-    auto node = make_shared<ASTNode>(ASTNodeType::VarDecl);
+    auto section = make_shared<ASTNode>(ASTNodeType::VarSection);
     while (current().type == TokenType::Identifier) {
         // Собираем имена переменных через запятую
-        std::vector<std::string> names;
+        vector<string> names;
         names.push_back(current().value);
         expect(TokenType::Identifier, "Ожидался идентификатор");
         while (match(TokenType::Comma)) {
-            names.push_back(current().value);
             expect(TokenType::Identifier, "Ожидался идентификатор после запятой");
+            names.push_back(tokens[pos - 1].value);
         }
-        expect(TokenType::Colon, "Ожидалось ':'");
-        std::string typeName = current().value;
-        expect(TokenType::Identifier, "Ожидался тип переменной");
-        expect(TokenType::Semicolon, "Ожидалась ';'");
-
+        expect(TokenType::Colon, "Ожидалось ':' после списка имён");
+        string typeName;
+        switch (current().type) {
+        case TokenType::Identifier:
+        case TokenType::Integer:
+        case TokenType::Real:
+        case TokenType::Boolean:
+        case TokenType::StringType:
+            typeName = current().value;
+            pos++;  // съели токен типа
+            break;
+        default:
+            throw runtime_error("Ожидался тип переменной в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
+        }
+        expect(TokenType::Semicolon, "Ожидалась ';' после объявления переменных");
         // Для всех имён создаём отдельные VarDecl с общим типом
         for (const auto& name : names) {
             auto decl = make_shared<ASTNode>(ASTNodeType::VarDecl, name);
             decl->value = typeName; // Сохраняем тип в поле value или children, по вашей архитектуре
-            node->children.push_back(decl);
+            section->children.push_back(decl);
         }
     }
-    return node;
+    return section;
 }
 
 // Разбор одного оператора (присваивание, вызов процедуры, if, while, write, read)
 shared_ptr<ASTNode> Parser::parseStatement() {
-    if (current().type == TokenType::Identifier) {
-        // Сохраняем имя идентификатора
-        string id = current().value;
-        // Смотрим следующий токен
-        if (pos + 1 < tokens.size() && tokens[pos + 1].type == TokenType::Assign) {
+    if (current().type == TokenType::Begin) return parseBlock();
+
+    if (current().type == TokenType::Writeln) return parseWriteln();
+    if (current().type == TokenType::Write) return parseWrite();
+    if (current().type == TokenType::Readln) return parseReadln();
+    if (current().type == TokenType::Read) return parseRead();
+
+    if (current().type == TokenType::Identifier)
+    {
+        if (pos + 1 < tokens.size() && tokens[pos + 1].type == TokenType::Assign)
             return parseAssignment();
-        } else if (pos + 1 < tokens.size() && tokens[pos + 1].type == TokenType::LParen) {
+        else if (pos + 1 < tokens.size() && tokens[pos + 1].type == TokenType::LParen)
             return parseProcedureCall();
-        } else {
-            int errLine = current().line;
-            int errCol = current().column;
-            throw runtime_error("Ожидалось ':=' или '(' после идентификатора в " + to_string(errLine) + " строчке, " + to_string(errCol) + " позиции");
-        }
-    } else if (current().type == TokenType::If) {
-        return parseIf();
-    } else if (current().type == TokenType::While) {
-        return parseWhile();
-    } else if (current().type == TokenType::Write) {
-        return parseWrite();
-    } else if (current().type == TokenType::Read) {
-        return parseRead();
+        else throw runtime_error("Ожидалось ':=' после идентификатора '" + current().value + "' в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
     }
-    int errLine = current().line;
-    int errCol = current().column;
-    throw runtime_error("Неизвестный оператор в " + to_string(errLine) + " строчке, " + to_string(errCol) + " позиции");
+    if (current().type == TokenType::If) return parseIf();
+    if (current().type == TokenType::While) return parseWhile();
+    throw runtime_error("Неизвестный оператор в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
 }
 
 // Разбор присваивания: <id> := <выражение>
@@ -190,11 +196,16 @@ shared_ptr<ASTNode> Parser::parseWhile() {
 
 // Разбор оператора write(...)
 shared_ptr<ASTNode> Parser::parseWrite() {
-    expect(TokenType::Write, "Ожидалось 'write'");
+    expect(TokenType::Write, "Ожидалось 'Write'");
     auto node = make_shared<ASTNode>(ASTNodeType::Write);
-    expect(TokenType::LParen, "Ожидалась '(' после write");
-    node->children.push_back(parseExpression());
-    expect(TokenType::RParen, "Ожидалась ')' после write");
+    expect(TokenType::LParen, "Ожидалась '(' после Write");
+    if (current().type != TokenType::RParen) {
+        node->children.push_back(parseExpression());
+        while (match(TokenType::Comma)) {
+            node->children.push_back(parseExpression());
+        }
+    }
+    expect(TokenType::RParen, "Ожидалась ')' после Write");
     return node;
 }
 
@@ -208,6 +219,38 @@ shared_ptr<ASTNode> Parser::parseRead() {
     return node;
 }
 
+shared_ptr<ASTNode> Parser::parseWriteln() {
+    expect(TokenType::Writeln, "Ожидалось 'Writeln'");
+    auto node = make_shared<ASTNode>(ASTNodeType::Writeln);
+    expect(TokenType::LParen, "Ожидалась '(' после 'Writeln'");
+    // Поддержка zero или более аргументов
+    if (current().type != TokenType::RParen) {
+        node->children.push_back(parseExpression());
+        while (match(TokenType::Comma)) {
+            node->children.push_back(parseExpression());
+        }
+    }
+    expect(TokenType::RParen, "Ожидалась ')' после аргументов 'Writeln'");
+    return node;
+}
+
+shared_ptr<ASTNode> Parser::parseReadln() {
+    expect(TokenType::Readln, "Ожидалось 'readln'");
+    auto node = make_shared<ASTNode>(ASTNodeType::Readln);
+    expect(TokenType::LParen, "Ожидалась '(' после 'readln'");
+    // Поддержка одного и более аргументов (чтобы знать, куда читать)
+    if (current().type != TokenType::RParen) {
+        // обычно readln(x, y, ...)
+        node->children.push_back(parseExpression());
+        while (match(TokenType::Comma)) {
+            node->children.push_back(parseExpression());
+        }
+    }
+    expect(TokenType::RParen, "Ожидалась ')' после аргументов 'readln'");
+    return node;
+}
+
+
 // Разбор выражения с поддержкой логических и сравнительных операций
 shared_ptr<ASTNode> Parser::parseExpression() {
     auto left = parseSimpleExpression();
@@ -217,7 +260,7 @@ shared_ptr<ASTNode> Parser::parseExpression() {
         auto op = current(); pos++;
         auto right = parseSimpleExpression();
         auto bin = make_shared<ASTNode>(ASTNodeType::BinOp, op.value);
-        bin->children = {left, right};
+        bin->children = { left, right };
         left = bin;
     }
     return left;
@@ -227,11 +270,11 @@ shared_ptr<ASTNode> Parser::parseExpression() {
 shared_ptr<ASTNode> Parser::parseSimpleExpression() {
     auto left = parseTerm();
     while (current().type == TokenType::Plus || current().type == TokenType::Minus ||
-           current().type == TokenType::Or) {
+        current().type == TokenType::Or) {
         auto op = current(); pos++;
         auto right = parseTerm();
         auto bin = make_shared<ASTNode>(ASTNodeType::BinOp, op.value);
-        bin->children = {left, right};
+        bin->children = { left, right };
         left = bin;
     }
     return left;
@@ -241,11 +284,11 @@ shared_ptr<ASTNode> Parser::parseSimpleExpression() {
 shared_ptr<ASTNode> Parser::parseTerm() {
     auto left = parseFactor();
     while (current().type == TokenType::Multiply || current().type == TokenType::Divide ||
-           current().type == TokenType::And) {
+        current().type == TokenType::And || current().type == TokenType::DivKeyword || current().type == TokenType::Mod) {
         auto op = current(); pos++;
         auto right = parseFactor();
         auto bin = make_shared<ASTNode>(ASTNodeType::BinOp, op.value);
-        bin->children = {left, right};
+        bin->children = { left, right };
         left = bin;
     }
     return left;
@@ -260,6 +303,17 @@ shared_ptr<ASTNode> Parser::parseFactor() {
     }
     if (current().type == TokenType::Number) {
         auto node = make_shared<ASTNode>(ASTNodeType::Number, current().value);
+        pos++;
+        return node;
+    }
+    if (current().type == TokenType::RealLiteral) {
+        auto node = make_shared<ASTNode>(ASTNodeType::Real, current().value);
+        pos++;
+        return node;
+    }
+    if (current().type == TokenType::True || current().type == TokenType::False) {
+        string val = (current().type == TokenType::True) ? "true" : "false";
+        auto node = make_shared<ASTNode>(ASTNodeType::Boolean, val);
         pos++;
         return node;
     }

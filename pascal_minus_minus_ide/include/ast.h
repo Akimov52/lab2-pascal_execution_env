@@ -1,9 +1,6 @@
 #ifndef AST_H
 #define AST_H
 
-#include <string>
-#include <vector>
-#include <memory>
 #include "lexer.h"
 
 // Используем TokenType из lexer.h для связи лексера и парсера
@@ -35,7 +32,9 @@ struct TypeInfo {
 enum class ASTNodeType {
     Program,        // Главная программа
     Block,          // Блок begin-end
+    ConstSection,
     ConstDecl,      // Объявление константы
+    VarSection,
     VarDecl,        // Объявление переменной
     Assignment,     // Присваивание
     If,             // Условный оператор

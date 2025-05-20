@@ -25,7 +25,7 @@ public:
     SymbolInfo* findSymbol(const string& name);
     void removeSymbol(const string& name);
     void printTable();
-    
+
 private:
     vector<shared_ptr<SymbolInfo>> symbols;
 };

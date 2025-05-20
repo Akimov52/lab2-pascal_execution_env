@@ -18,6 +18,7 @@ namespace PascalToken {
         Program, Var, Const, Begin, End,
         If, Then, Else, While, Do,
         Read, Write,
+        Readln, Writeln,
         Integer, Real, Boolean, StringType,
         True, False,
         Array, Of,
@@ -25,6 +26,7 @@ namespace PascalToken {
 
         // Операторы и разделители
         Plus, Minus, Multiply, Divide,
+        DivKeyword, Mod,
         Assign, Equal, NotEqual, Less, LessEqual, Greater, GreaterEqual,
         Semicolon, Colon, Comma, Dot, LParen, RParen, LBracket, RBracket,
         And, Or, Not,

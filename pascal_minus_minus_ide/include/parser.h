@@ -1,11 +1,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <vector>
-#include <memory>
-#include <string>
 #include "ast.h"
-#include "lexer.h"
 
 // Используем TokenType из lexer.h для идентификации типов токенов
 using PascalToken::TokenType;
@@ -41,6 +37,8 @@ private:
     shared_ptr<ASTNode> parseWhile();            // while ... do ...
     shared_ptr<ASTNode> parseWrite();            // write(...)
     shared_ptr<ASTNode> parseRead();             // read(...)
+    shared_ptr<ASTNode> parseReadln();
+    shared_ptr<ASTNode> parseWriteln();
     shared_ptr<ASTNode> parseExpression();       // Общее выражение
     shared_ptr<ASTNode> parseSimpleExpression(); // Простое выражение (без логики)
     shared_ptr<ASTNode> parseTerm();             // Термы (умножение, деление и т.д.)

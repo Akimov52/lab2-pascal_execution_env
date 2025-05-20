@@ -53,10 +53,10 @@ void setConsoleEncoding() {
 int main() {
     // Устанавливаем кодировку консоли
     setConsoleEncoding();
-    
+
     // Выводим приветственное сообщение с текущей кодировкой консоли
     cout << "Pascal-- IDE запущена. Кодировка консоли: " << GetConsoleCP() << endl;
-    
+
     // Основные переменные для хранения команд, исходного кода, имени файла и состояния
     string command;
     string source, filename;
@@ -88,7 +88,8 @@ int main() {
             string fname = command.substr(5);
             if (fname.empty()) {
                 cout << "Укажите имя файла после команды open.\n";
-            } else {
+            }
+            else {
                 ifstream file(fname);
                 if (file.is_open()) {
                     source = string((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
@@ -96,7 +97,8 @@ int main() {
                     filename = fname;
                     edited = false;
                     cout << "\nФайл успешно загружен.\n";
-                } else {
+                }
+                else {
                     cerr << "\nОшибка: Не удалось открыть файл.\n";
                 }
             }
@@ -107,14 +109,16 @@ int main() {
             string fname = command.substr(5);
             if (fname.empty()) {
                 cout << "Укажите имя файла после команды save.\n";
-            } else {
+            }
+            else {
                 ofstream file(fname);
                 if (file.is_open()) {
                     file << source;
                     filename = fname;
                     edited = false;
                     cout << "\nФайл успешно сохранён.\n";
-                } else {
+                }
+                else {
                     cerr << "\nОшибка: Не удалось сохранить файл.\n";
                 }
             }
@@ -143,7 +147,8 @@ int main() {
                 Parser parser(tokens);
                 parser.parse();
                 cout << "\nСинтаксических ошибок не обнаружено.\n";
-            } catch (const exception& e) {
+            }
+            catch (const exception& e) {
                 cerr << "\nОшибка: " << e.what() << endl;
             }
             system("pause");
@@ -159,7 +164,8 @@ int main() {
                 Interpreter interpreter;
                 interpreter.run(ast);
                 cout << "\n\nПрограмма завершила выполнение.\n";
-            } catch (const exception& e) {
+            }
+            catch (const exception& e) {
                 cerr << "\nОшибка выполнения: " << e.what() << endl;
             }
             system("pause");
@@ -178,7 +184,8 @@ int main() {
                 if (answer == "y" || answer == "Y") {
                     running = false;
                 }
-            } else {
+            }
+            else {
                 running = false;
             }
         }
@@ -192,6 +199,6 @@ int main() {
             system("pause");
         }
     }
-    
+
     return 0;
 }

@@ -1,8 +1,6 @@
 #pragma once
 #include "ast.h"
 #include <map>
-#include <string>
-#include <memory>
 
 using namespace std;
 

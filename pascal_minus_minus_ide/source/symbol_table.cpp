@@ -2,7 +2,8 @@
 
 // Конструктор SymbolInfo
 SymbolInfo::SymbolInfo(string n, string t, string v)
-    : name(n), type(t), value(v), table(nullptr) {}
+    : name(n), type(t), value(v), table(nullptr) {
+}
 
 // Конструктор SymbolTable
 SymbolTable::SymbolTable() {}
@@ -35,6 +36,6 @@ void SymbolTable::removeSymbol(const string& name) {
 void SymbolTable::printTable() {
     for (const auto& symbol : symbols) {
         cout << "Name: " << symbol->name << ", Type: " << symbol->type
-                  << ", Value: " << symbol->value << endl;
+            << ", Value: " << symbol->value << endl;
     }
 }

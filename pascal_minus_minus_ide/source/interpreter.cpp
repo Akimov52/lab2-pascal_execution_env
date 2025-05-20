@@ -4,6 +4,9 @@
 #include <limits>        // Для numeric_limits, используемого в Readln
 #include <stdexcept>     // Для генерации исключений
 #include <string>        // Для работы со строками
+#include <cmath>
+#include <algorithm>
+#include <cctype>
 
 using namespace std;
 
@@ -36,87 +39,164 @@ Interpreter::Interpreter() {} // Конструктор по умолчанию
 void Interpreter::run(const shared_ptr<ASTNode>& root) {
     if (!root) return; // Если узел пустой — ничего не делаем
     switch (root->type) {
-        case ASTNodeType::Program:
-        case ASTNodeType::Block:
-            // Последовательно выполняем все подузлы (операторы)
-            for (const auto& stmt : root->children)
-                run(stmt);
+    case ASTNodeType::Program:
+    case ASTNodeType::Block:
+    case ASTNodeType::ConstSection:
+    case ASTNodeType::VarSection:
+        // Последовательно выполняем все подузлы (операторы)
+        for (const auto& stmt : root->children)
+            run(stmt);
+        break;
+    case ASTNodeType::ConstDecl:
+    case ASTNodeType::VarDecl:
+        break;
+    case ASTNodeType::Assignment:
+        executeAssignment(root); // Присваивание переменной
+        break;
+    case ASTNodeType::If:
+        executeIf(root); // Условный оператор
+        break;
+    case ASTNodeType::While:
+        executeWhile(root); // Цикл while
+        break;
+    case ASTNodeType::Write:
+    case ASTNodeType::Writeln:
+        executeWrite(root); // Вывод
+        break;
+    case ASTNodeType::Read:
+    case ASTNodeType::Readln:
+        executeRead(root); // Ввод
+        break;
+
+    case ASTNodeType::ProcCall: {
+        // Процедурный вызов: возможно write/writeln/read/readln
+        const string& name = root->value;
+        if (name == "Writeln") {
+            // повторяем логику executeWrite + переход на новую строку
+            for (size_t i = 0; i < root->children.size(); ++i) {
+                Value val = evaluateExpression(root->children[i]);
+                switch (val.type) {
+                case ValueType::Integer: cout << val.intValue; break;
+                case ValueType::Real:    cout << val.realValue; break;
+                case ValueType::Boolean: cout << (val.boolValue ? "true" : "false"); break;
+                case ValueType::String:  cout << val.strValue; break;
+                }
+                if (i + 1 < root->children.size()) cout << " ";
+            }
+            cout << endl;
             break;
-        case ASTNodeType::Assignment:
-            executeAssignment(root); // Присваивание переменной
+        }
+        else if (name == "Write") {
+            // логика executeWrite без переноса строки
+            for (size_t i = 0; i < root->children.size(); ++i) {
+                Value val = evaluateExpression(root->children[i]);
+                switch (val.type) {
+                case ValueType::Integer: cout << val.intValue; break;
+                case ValueType::Real:    cout << val.realValue; break;
+                case ValueType::Boolean: cout << (val.boolValue ? "true" : "false"); break;
+                case ValueType::String:  cout << val.strValue; break;
+                }
+                if (i + 1 < root->children.size()) cout << " ";
+            }
             break;
-        case ASTNodeType::If:
-            executeIf(root); // Условный оператор
+        }
+        else if (name == "Readln") {
+            // аналог executeRead + игнор остатка строки
+            for (const auto& child : root->children) {
+                string varName = child->value;
+                int v;
+                cin >> v;
+                symbols[varName] = Value(v);
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            }
             break;
-        case ASTNodeType::While:
-            executeWhile(root); // Цикл while
+        }
+        else if (name == "Read") {
+            // executeRead без игнорирования
+            for (const auto& child : root->children) {
+                string varName = child->value;
+                int v;
+                cin >> v;
+                symbols[varName] = Value(v);
+            }
             break;
-        case ASTNodeType::Write:
-        case ASTNodeType::Writeln:
-            executeWrite(root); // Вывод
-            break;
-        case ASTNodeType::Read:
-        case ASTNodeType::Readln:
-            executeRead(root); // Ввод
-            break;
-        default:
-            throw runtime_error("Неизвестный оператор");
+        }
+        else {
+            throw runtime_error("Неизвестная процедура: " + name);
+        }
+    }
+    default:
+        throw runtime_error("Неизвестный оператор");
     }
 }
 
 // Вычисление выражения
 Value Interpreter::evaluateExpression(const shared_ptr<ASTNode>& node) {
     switch (node->type) {
-        case ASTNodeType::Number:
-            return Value(stoi(node->value)); // Преобразуем строку в число
-        case ASTNodeType::String:
-            return Value(node->value); // Просто строка
-        case ASTNodeType::Identifier: {
-            // Поиск переменной по имени
-            auto it = symbols.find(node->value);
-            if (it == symbols.end())
-                throw runtime_error("Неизвестная переменная: " + node->value);
-            return it->second;
+    case ASTNodeType::Number:
+        return Value(stoi(node->value)); // Преобразуем строку в число
+    case ASTNodeType::Real:
+        return Value(stod(node->value));
+    case ASTNodeType::Boolean:
+        return Value(node->value == "true");
+    case ASTNodeType::String:
+        return Value(node->value); // Просто строка
+    case ASTNodeType::Identifier: {
+        // Поиск переменной по имени
+        auto it = symbols.find(node->value);
+        if (it == symbols.end())
+            throw runtime_error("Неизвестная переменная: " + node->value);
+        return it->second;
+    }
+    case ASTNodeType::BinOp: {
+        // Бинарная операция: вычисляем левый и правый операнды
+        Value left = evaluateExpression(node->children[0]);
+        Value right = evaluateExpression(node->children[1]);
+
+        // Обработка различных операторов
+        if (node->value == "div") {
+            if (left.type != ValueType::Integer || right.type != ValueType::Integer)
+                throw runtime_error("Оператор div применим только к целым");
+            return Value(left.intValue / right.intValue);
         }
-        case ASTNodeType::BinOp: {
-            // Бинарная операция: вычисляем левый и правый операнды
-            Value left = evaluateExpression(node->children[0]);
-            Value right = evaluateExpression(node->children[1]);
-
-            // Обработка различных операторов
-            if (node->value == "+") {
-                if (left.type == ValueType::String || right.type == ValueType::String)
-                    return Value(left.strValue + right.strValue); // Конкатенация строк
-                return Value(left.intValue + right.intValue);
-            }
-            if (node->value == "-") return Value(left.intValue - right.intValue);
-            if (node->value == "*") return Value(left.intValue * right.intValue);
-            if (node->value == "/") {
-                if (right.intValue == 0) throw runtime_error("Деление на ноль");
-                return Value(left.intValue / right.intValue);
-            }
-
-            // Логические операции
-            if (node->value == "and") return Value(left.boolValue && right.boolValue);
-            if (node->value == "or") return Value(left.boolValue || right.boolValue);
-
-            // Операторы сравнения
-            if (node->value == "=") return Value(left.intValue == right.intValue);
-            if (node->value == "<>") return Value(left.intValue != right.intValue);
-            if (node->value == "<") return Value(left.intValue < right.intValue);
-            if (node->value == "<=") return Value(left.intValue <= right.intValue);
-            if (node->value == ">") return Value(left.intValue > right.intValue);
-            if (node->value == ">=") return Value(left.intValue >= right.intValue);
-
-            throw runtime_error("Неизвестный бинарный оператор: " + node->value);
+        if (node->value == "mod") {
+            if (left.type != ValueType::Integer || right.type != ValueType::Integer)
+                throw runtime_error("Оператор mod применим только к целым");
+            return Value(left.intValue % right.intValue);
         }
-        case ASTNodeType::UnOp:
-            // Унарные операции
-            if (node->value == "-") return Value(-evaluateExpression(node->children[0]).intValue);
-            if (node->value == "not") return Value(!evaluateExpression(node->children[0]).boolValue);
-            throw runtime_error("Неизвестный унарный оператор: " + node->value);
-        default:
-            throw runtime_error("Ошибка вычисления выражения");
+        if (node->value == "+") {
+            if (left.type == ValueType::String || right.type == ValueType::String)
+                return Value(left.strValue + right.strValue); // Конкатенация строк
+            return Value(left.intValue + right.intValue);
+        }
+        if (node->value == "-") return Value(left.intValue - right.intValue);
+        if (node->value == "*") return Value(left.intValue * right.intValue);
+        if (node->value == "/") {
+            if (right.intValue == 0) throw runtime_error("Деление на ноль");
+            return Value(left.intValue / right.intValue);
+        }
+
+        // Логические операции
+        if (node->value == "and") return Value(left.boolValue && right.boolValue);
+        if (node->value == "or") return Value(left.boolValue || right.boolValue);
+
+        // Операторы сравнения
+        if (node->value == "=") return Value(left.intValue == right.intValue);
+        if (node->value == "<>") return Value(left.intValue != right.intValue);
+        if (node->value == "<") return Value(left.intValue < right.intValue);
+        if (node->value == "<=") return Value(left.intValue <= right.intValue);
+        if (node->value == ">") return Value(left.intValue > right.intValue);
+        if (node->value == ">=") return Value(left.intValue >= right.intValue);
+
+        throw runtime_error("Неизвестный бинарный оператор: " + node->value);
+    }
+    case ASTNodeType::UnOp:
+        // Унарные операции
+        if (node->value == "-") return Value(-evaluateExpression(node->children[0]).intValue);
+        if (node->value == "not") return Value(!evaluateExpression(node->children[0]).boolValue);
+        throw runtime_error("Неизвестный унарный оператор: " + node->value);
+    default:
+        throw runtime_error("Ошибка вычисления выражения");
     }
 }
 
@@ -146,10 +226,10 @@ void Interpreter::executeWrite(const shared_ptr<ASTNode>& node) {
         const auto& child = node->children[i];
         Value val = evaluateExpression(child); // Вычисляем значение
         switch (val.type) {
-            case ValueType::Integer: cout << val.intValue; break;
-            case ValueType::Real:    cout << val.realValue; break;
-            case ValueType::Boolean: cout << (val.boolValue ? "true" : "false"); break;
-            case ValueType::String:  cout << val.strValue; break;
+        case ValueType::Integer: cout << val.intValue; break;
+        case ValueType::Real:    cout << val.realValue; break;
+        case ValueType::Boolean: cout << (val.boolValue ? "true" : "false"); break;
+        case ValueType::String:  cout << val.strValue; break;
         }
         if (i + 1 < node->children.size()) cout << " "; // Пробел между значениями
     }

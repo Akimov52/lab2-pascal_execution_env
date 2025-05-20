@@ -24,8 +24,9 @@ double PostfixCalculator::eval(const vector<string>& tokens) {
         if (is_number(token)) {
             // Если токен — число, помещаем в стек
             st.push(stod(token));
-        } else if (token == "+" || token == "-" || token == "*" || token == "/" ||
-                   token == "^") {
+        }
+        else if (token == "+" || token == "-" || token == "*" || token == "/" ||
+            token == "^") {
             // Если токен — оператор, извлекаем два значения из стека и применяем оператор
             if (st.size() < 2) throw runtime_error("Недостаточно операндов");
             double b = st.top(); st.pop();
@@ -35,7 +36,8 @@ double PostfixCalculator::eval(const vector<string>& tokens) {
             else if (token == "*") st.push(a * b);
             else if (token == "/") st.push(a / b);
             else if (token == "^") st.push(pow(a, b));
-        } else {
+        }
+        else {
             // Если токен не распознан — ошибка
             throw runtime_error("Неизвестный токен в постфиксном выражении: " + token);
         }
@@ -69,7 +71,8 @@ static vector<string> tokenize(const string& expr) {
         if (isdigit(c) || c == '.') {
             // Если цифра или точка — продолжаем накапливать число
             num += c;
-        } else {
+        }
+        else {
             // Если встретили оператор или скобку — сначала добавляем накопленное число
             if (!num.empty()) {
                 tokens.push_back(num);
@@ -97,19 +100,22 @@ vector<string> PostfixCalculator::to_postfix(const string& expr) {
         if (is_number(token)) {
             // Если токен — число, сразу в выходную очередь
             output.push_back(token);
-        } else if (is_operator(token)) {
+        }
+        else if (is_operator(token)) {
             // Если токен — оператор, учитываем приоритеты и ассоциативность
             while (!ops.empty() && is_operator(ops.top()) &&
-                   ((precedence(token) < precedence(ops.top())) ||
+                ((precedence(token) < precedence(ops.top())) ||
                     (precedence(token) == precedence(ops.top()) && token != "^"))) {
                 output.push_back(ops.top());
                 ops.pop();
             }
             ops.push(token);
-        } else if (token == "(") {
+        }
+        else if (token == "(") {
             // Открывающая скобка — просто в стек операторов
             ops.push(token);
-        } else if (token == ")") {
+        }
+        else if (token == ")") {
             // Закрывающая скобка — выталкиваем операторы до открывающей скобки
             while (!ops.empty() && ops.top() != "(") {
                 output.push_back(ops.top());
@@ -117,7 +123,8 @@ vector<string> PostfixCalculator::to_postfix(const string& expr) {
             }
             if (!ops.empty() && ops.top() == "(") ops.pop();
             else throw runtime_error("Несогласованные скобки");
-        } else {
+        }
+        else {
             // Неизвестный токен — ошибка
             throw runtime_error("Неизвестный токен: " + token);
         }

@@ -1,15 +1,12 @@
 #include "lexer.h"
-#include <stdexcept>
-#include <cctype>
-#include <unordered_map>
-#include <string>
 
 // Конструктор по умолчанию для токена: устанавливает тип EndOfFile и пустые значения
 Token::Token() : type(TokenType::EndOfFile), value(""), line(0), column(0) {}
 
 // Конструктор токена с параметрами: тип, значение, строка и столбец
 Token::Token(TokenType t, const string& v, int l, int c)
-    : type(t), value(v), line(l), column(c) {}
+    : type(t), value(v), line(l), column(c) {
+}
 
 // Проверка: является ли символ латинской или кириллической буквой (Windows-1251)
 bool isAlphaCyrillic(unsigned char c) {
@@ -26,7 +23,8 @@ using namespace std;
 
 // Конструктор лексера: принимает исходный текст программы
 Lexer::Lexer(const string& source)
-    : source(source), position(0), line(1), column(1) {}
+    : source(source), position(0), line(1), column(1) {
+}
 
 // Получить текущий символ
 char Lexer::current() const {
@@ -46,7 +44,8 @@ void Lexer::advance() {
         if (source[position] == '\n') {
             line++;
             column = 1;
-        } else {
+        }
+        else {
             column++;
         }
         position++;
@@ -66,17 +65,20 @@ void Lexer::skipComment() {
         advance();
         while (current() != '}' && current() != '\0') advance();
         if (current() == '}') advance();
-    } else if (current() == '(' && peek() == '*') {
+    }
+    else if (current() == '(' && peek() == '*') {
         advance(); advance();
         int level = 1;
         while (level > 0 && current() != '\0') {
             if (current() == '(' && peek() == '*') {
                 advance(); advance();
                 level++;
-            } else if (current() == '*' && peek() == ')') {
+            }
+            else if (current() == '*' && peek() == ')') {
                 advance(); advance();
                 level--;
-            } else {
+            }
+            else {
                 advance();
             }
         }
@@ -110,8 +112,10 @@ const unordered_map<string, TokenType>& Lexer::getKeywords() const {
         {"else", TokenType::Else},
         {"while", TokenType::While},
         {"do", TokenType::Do},
-        {"read", TokenType::Read},
-        {"write", TokenType::Write},
+        {"Read", TokenType::Read},
+        {"Write", TokenType::Write},
+        {"Readln", TokenType::Readln},
+        {"Writeln", TokenType::Writeln},
         {"integer", TokenType::Integer},
         {"real", TokenType::Real},
         {"boolean", TokenType::Boolean},
@@ -123,6 +127,8 @@ const unordered_map<string, TokenType>& Lexer::getKeywords() const {
         {"procedure", TokenType::Procedure},
         {"function", TokenType::Function},
         {"return", TokenType::Return},
+        {"div", TokenType::DivKeyword},
+        {"mod", TokenType::Mod},
         {"and", TokenType::And},
         {"or", TokenType::Or},
         {"not", TokenType::Not}
@@ -191,13 +197,16 @@ Token Lexer::readString() {
             // Обработка escape-последовательностей
             if (current() == 'n') {
                 str += '\n';
-            } else if (current() == 't') {
+            }
+            else if (current() == 't') {
                 str += '\t';
-            } else {
+            }
+            else {
                 str += current(); // Просто добавить символ как есть
             }
             advance();
-        } else {
+        }
+        else {
             str += current();
             advance();
         }
@@ -224,94 +233,101 @@ vector<Token> Lexer::tokenize() {
 
         if (isAlphaCyrillic((unsigned char)c) || c == '_') {
             tokens.push_back(readIdentifierOrKeyword());
-        } else if (isdigit((unsigned char)c)) {
+        }
+        else if (isdigit((unsigned char)c)) {
             tokens.push_back(readNumber());
-        } else if (c == '"' || c == '\'') {
+        }
+        else if (c == '"' || c == '\'') {
             tokens.push_back(readString());
-        } else {
+        }
+        else {
             switch (c) {
-                case '+':
-                    tokens.push_back(makeToken(TokenType::Plus, "+"));
+            case '+':
+                tokens.push_back(makeToken(TokenType::Plus, "+"));
+                advance();
+                break;
+            case '-':
+                tokens.push_back(makeToken(TokenType::Minus, "-"));
+                advance();
+                break;
+            case '*':
+                tokens.push_back(makeToken(TokenType::Multiply, "*"));
+                advance();
+                break;
+            case '/':
+                tokens.push_back(makeToken(TokenType::Divide, "/"));
+                advance();
+                break;
+            case '=':
+                tokens.push_back(makeToken(TokenType::Equal, "="));
+                advance();
+                break;
+            case '<':
+                advance();
+                if (current() == '=') {
+                    tokens.push_back(makeToken(TokenType::LessEqual, "<="));
                     advance();
-                    break;
-                case '-':
-                    tokens.push_back(makeToken(TokenType::Minus, "-"));
+                }
+                else if (current() == '>') {
+                    tokens.push_back(makeToken(TokenType::NotEqual, "<>"));
                     advance();
-                    break;
-                case '*':
-                    tokens.push_back(makeToken(TokenType::Multiply, "*"));
+                }
+                else {
+                    tokens.push_back(makeToken(TokenType::Less, "<"));
+                }
+                break;
+            case '>':
+                advance();
+                if (current() == '=') {
+                    tokens.push_back(makeToken(TokenType::GreaterEqual, ">="));
                     advance();
-                    break;
-                case '/':
-                    tokens.push_back(makeToken(TokenType::Divide, "/"));
+                }
+                else {
+                    tokens.push_back(makeToken(TokenType::Greater, ">"));
+                }
+                break;
+            case ':':
+                advance();
+                if (current() == '=') {
+                    tokens.push_back(makeToken(TokenType::Assign, ":="));
                     advance();
-                    break;
-                case '=':
-                    tokens.push_back(makeToken(TokenType::Equal, "="));
-                    advance();
-                    break;
-                case '<':
-                    advance();
-                    if (current() == '=') {
-                        tokens.push_back(makeToken(TokenType::LessEqual, "<="));
-                        advance();
-                    } else if (current() == '>') {
-                        tokens.push_back(makeToken(TokenType::NotEqual, "<>"));
-                        advance();
-                    } else {
-                        tokens.push_back(makeToken(TokenType::Less, "<"));
-                    }
-                    break;
-                case '>':
-                    advance();
-                    if (current() == '=') {
-                        tokens.push_back(makeToken(TokenType::GreaterEqual, ">="));
-                        advance();
-                    } else {
-                        tokens.push_back(makeToken(TokenType::Greater, ">"));
-                    }
-                    break;
-                case ':':
-                    advance();
-                    if (current() == '=') {
-                        tokens.push_back(makeToken(TokenType::Assign, ":="));
-                        advance();
-                    } else {
-                        tokens.push_back(makeToken(TokenType::Colon, ":"));
-                    }
-                    break;
-                case ';':
-                    tokens.push_back(makeToken(TokenType::Semicolon, ";"));
-                    advance();
-                    break;
-                case ',':
-                    tokens.push_back(makeToken(TokenType::Comma, ","));
-                    advance();
-                    break;
-                case '.':
-                    tokens.push_back(makeToken(TokenType::Dot, "."));
-                    advance();
-                    break;
-                case '(':
-                    tokens.push_back(makeToken(TokenType::LParen, "("));
-                    advance();
-                    break;
-                case ')':
-                    tokens.push_back(makeToken(TokenType::RParen, ")"));
-                    advance();
-                    break;
-                case '[':
-                    tokens.push_back(makeToken(TokenType::LBracket, "["));
-                    advance();
-                    break;
-                case ']':
-                    tokens.push_back(makeToken(TokenType::RBracket, "]"));
-                    advance();
-                    break;
-                default:
-                    string error = "Unexpected character: ";
-                    error += c;
-                    throw runtime_error(error);
+                }
+                else {
+                    tokens.push_back(makeToken(TokenType::Colon, ":"));
+                }
+                break;
+            case ';':
+                tokens.push_back(makeToken(TokenType::Semicolon, ";"));
+                advance();
+                break;
+            case ',':
+                tokens.push_back(makeToken(TokenType::Comma, ","));
+                advance();
+                break;
+            case '.':
+                tokens.push_back(makeToken(TokenType::Dot, "."));
+                advance();
+                break;
+            case '(':
+                tokens.push_back(makeToken(TokenType::LParen, "("));
+                advance();
+                break;
+            case ')':
+                tokens.push_back(makeToken(TokenType::RParen, ")"));
+                advance();
+                break;
+            case '[':
+                tokens.push_back(makeToken(TokenType::LBracket, "["));
+                advance();
+                break;
+            case ']':
+                tokens.push_back(makeToken(TokenType::RBracket, "]"));
+                advance();
+                break;
+            default:
+                string error = "Unexpected character: ";
+                error += c;
+                throw runtime_error(error);
             }
         }
     }
