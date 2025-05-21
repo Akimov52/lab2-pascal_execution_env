@@ -17,8 +17,7 @@ namespace PascalToken {
         // Ключевые слова
         Program, Var, Const, Begin, End,
         If, Then, Else, While, Do,
-        Read, Write,
-        Readln, Writeln,
+        Read, Write, Readln, Writeln,
         Integer, Real, Boolean, StringType,
         True, False,
         Array, Of,

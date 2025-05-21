@@ -12,9 +12,9 @@ public:
     string name;
     string type;
     string value;
-    shared_ptr<SymbolInfo> table;
+    shared_ptr<SymbolInfo> table; // Для вложенных таблиц
 
-    SymbolInfo(string n, string t, string v);
+    SymbolInfo(const string& n, const string& t, const string& v);
 };
 
 class SymbolTable {

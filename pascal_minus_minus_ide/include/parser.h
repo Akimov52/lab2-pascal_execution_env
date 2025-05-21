@@ -3,23 +3,18 @@
 
 #include "ast.h"
 
-// Используем TokenType из lexer.h для идентификации типов токенов
-using PascalToken::TokenType;
-
-using namespace std;
-
 // Класс синтаксического анализатора (парсера)
 class Parser {
 public:
     // Конструктор принимает вектор токенов, полученных из лексера
-    Parser(const vector<Token>& tokens);
+    explicit Parser(const vector<Token>& tokens);
 
     // Основной метод: построить AST из токенов
     shared_ptr<ASTNode> parse();
 
 private:
-    vector<Token> tokens; // Список токенов для разбора
-    size_t pos;           // Текущая позиция в списке токенов
+    const vector<Token>& tokens; // Список токенов для разбора
+    size_t pos;                  // Текущая позиция в списке токенов
 
     // Получить текущий токен
     const Token& current() const;
@@ -35,10 +30,10 @@ private:
     shared_ptr<ASTNode> parseAssignment();       // Присваивание
     shared_ptr<ASTNode> parseIf();               // if ... then ... else
     shared_ptr<ASTNode> parseWhile();            // while ... do ...
-    shared_ptr<ASTNode> parseWrite();            // write(...)
-    shared_ptr<ASTNode> parseRead();             // read(...)
-    shared_ptr<ASTNode> parseReadln();
-    shared_ptr<ASTNode> parseWriteln();
+    shared_ptr<ASTNode> parseWrite();            // Write(...)
+    shared_ptr<ASTNode> parseRead();             // Read(...)
+    shared_ptr<ASTNode> parseReadln();           // Readln(...)
+    shared_ptr<ASTNode> parseWriteln();          // Write(...)
     shared_ptr<ASTNode> parseExpression();       // Общее выражение
     shared_ptr<ASTNode> parseSimpleExpression(); // Простое выражение (без логики)
     shared_ptr<ASTNode> parseTerm();             // Термы (умножение, деление и т.д.)

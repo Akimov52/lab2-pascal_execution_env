@@ -1,12 +1,12 @@
 #include "parser.h"
-#include <stdexcept>
 
 // Конструктор парсера: принимает список токенов для разбора
 Parser::Parser(const vector<Token>& tokens) : tokens(tokens), pos(0) {}
 
 // Получить текущий токен. Если вышли за пределы — выбрасываем ошибку.
 const Token& Parser::current() const {
-    if (pos >= tokens.size()) throw runtime_error("Неожиданный конец входных данных");
+    if (pos >= tokens.size())
+        throw runtime_error("Неожиданный конец входных данных");
     return tokens[pos];
 }
 
@@ -49,13 +49,11 @@ shared_ptr<ASTNode> Parser::parseBlock() {
     auto block = make_shared<ASTNode>(ASTNodeType::Block);
 
     // Обработка секции const
-    if (current().type == TokenType::Const) {
+    if (current().type == TokenType::Const)
         block->children.push_back(parseConstSection());
-    }
     // Обработка секции var (теперь опционально)
-    if (current().type == TokenType::Var) {
+    if (current().type == TokenType::Var)
         block->children.push_back(parseVarSection());
-    }
     expect(TokenType::Begin, "Ожидалось 'begin'");
     while (!match(TokenType::End)) {
         block->children.push_back(parseStatement());
@@ -71,9 +69,8 @@ shared_ptr<ASTNode> Parser::parseConstSection() {
     while (current().type == TokenType::Identifier) {
         string name = current().value;
         expect(TokenType::Identifier, "Ожидался идентификатор");
-        if (match(TokenType::Colon)) {
+        if (match(TokenType::Colon))
             expect(TokenType::Identifier, "Ожидался тип константы");
-        }
         expect(TokenType::Equal, "Ожидался '='");
         auto value = parseExpression();
         expect(TokenType::Semicolon, "Ожидалась ';'");
@@ -124,12 +121,17 @@ shared_ptr<ASTNode> Parser::parseVarSection() {
 
 // Разбор одного оператора (присваивание, вызов процедуры, if, while, write, read)
 shared_ptr<ASTNode> Parser::parseStatement() {
-    if (current().type == TokenType::Begin) return parseBlock();
+    if (current().type == TokenType::Begin)
+        return parseBlock();
 
-    if (current().type == TokenType::Writeln) return parseWriteln();
-    if (current().type == TokenType::Write) return parseWrite();
-    if (current().type == TokenType::Readln) return parseReadln();
-    if (current().type == TokenType::Read) return parseRead();
+    if (current().type == TokenType::Writeln)
+        return parseWriteln();
+    if (current().type == TokenType::Write)
+        return parseWrite();
+    if (current().type == TokenType::Readln)
+        return parseReadln();
+    if (current().type == TokenType::Read)
+        return parseRead();
 
     if (current().type == TokenType::Identifier)
     {
@@ -139,8 +141,10 @@ shared_ptr<ASTNode> Parser::parseStatement() {
             return parseProcedureCall();
         else throw runtime_error("Ожидалось ':=' после идентификатора '" + current().value + "' в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
     }
-    if (current().type == TokenType::If) return parseIf();
-    if (current().type == TokenType::While) return parseWhile();
+    if (current().type == TokenType::If)
+        return parseIf();
+    if (current().type == TokenType::While)
+        return parseWhile();
     throw runtime_error("Неизвестный оператор в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
 }
 
@@ -163,9 +167,8 @@ shared_ptr<ASTNode> Parser::parseProcedureCall() {
     // Парсим аргументы (может быть несколько через запятую)
     if (current().type != TokenType::RParen) {
         node->children.push_back(parseExpression());
-        while (match(TokenType::Comma)) {
+        while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
-        }
     }
     expect(TokenType::RParen, "Ожидалась ')' после аргументов процедуры");
     return node;
@@ -178,9 +181,8 @@ shared_ptr<ASTNode> Parser::parseIf() {
     node->children.push_back(parseExpression());
     expect(TokenType::Then, "Ожидалось 'then'");
     node->children.push_back(parseStatement());
-    if (match(TokenType::Else)) {
+    if (match(TokenType::Else))
         node->children.push_back(parseStatement());
-    }
     return node;
 }
 
@@ -201,9 +203,8 @@ shared_ptr<ASTNode> Parser::parseWrite() {
     expect(TokenType::LParen, "Ожидалась '(' после Write");
     if (current().type != TokenType::RParen) {
         node->children.push_back(parseExpression());
-        while (match(TokenType::Comma)) {
+        while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
-        }
     }
     expect(TokenType::RParen, "Ожидалась ')' после Write");
     return node;
@@ -226,9 +227,8 @@ shared_ptr<ASTNode> Parser::parseWriteln() {
     // Поддержка zero или более аргументов
     if (current().type != TokenType::RParen) {
         node->children.push_back(parseExpression());
-        while (match(TokenType::Comma)) {
+        while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
-        }
     }
     expect(TokenType::RParen, "Ожидалась ')' после аргументов 'Writeln'");
     return node;
@@ -242,14 +242,12 @@ shared_ptr<ASTNode> Parser::parseReadln() {
     if (current().type != TokenType::RParen) {
         // обычно readln(x, y, ...)
         node->children.push_back(parseExpression());
-        while (match(TokenType::Comma)) {
+        while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
-        }
     }
     expect(TokenType::RParen, "Ожидалась ')' после аргументов 'readln'");
     return node;
 }
-
 
 // Разбор выражения с поддержкой логических и сравнительных операций
 shared_ptr<ASTNode> Parser::parseExpression() {

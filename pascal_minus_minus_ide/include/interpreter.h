@@ -1,11 +1,11 @@
 #pragma once
+
 #include "ast.h"
 #include <map>
 
-using namespace std;
-
 enum class ValueType { Integer, Real, Boolean, String };
 
+// ”ниверсальный контейнер дл€ значений
 struct Value {
     ValueType type;
     int intValue;
@@ -14,10 +14,10 @@ struct Value {
     string strValue;
 
     Value();
-    Value(int v);
-    Value(double v);
-    Value(bool v);
-    Value(const string& v);
+    explicit Value(int v);
+    explicit Value(double v);
+    explicit Value(bool v);
+    explicit Value(const string& v);
 };
 
 class Interpreter {

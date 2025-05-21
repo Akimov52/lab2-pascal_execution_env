@@ -1,0 +1,4 @@
+program Example2;
+begin
+	Writeln('Привет, мир!');
+end.

@@ -1,23 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <string>
 #include <cstdlib>
 #include <windows.h>
-#include <io.h>
-#include <fcntl.h>
-#include <locale>
-#include <codecvt>
 
-#include "lexer.h"
 #include "parser.h"
 #include "interpreter.h"
-
-// Используем TokenType из lexer.h
-using PascalToken::TokenType;
-
-using namespace std;
 
 // Очистить экран консоли (Windows)
 void clearConsole() {
@@ -26,17 +16,17 @@ void clearConsole() {
 
 // Вывести меню команд для пользователя
 void printMenu() {
-    cout << "Добро пожаловать в Pascal-- IDE!\n";
-    cout << "Доступные команды:\n";
-    cout << "  new         - создать новый файл программы\n";
-    cout << "  open <имя>  - открыть программу из файла\n";
-    cout << "  save <имя>  - сохранить программу в файл\n";
-    cout << "  edit        - перейти в режим редактирования\n";
-    cout << "  run         - выполнить программу\n";
-    cout << "  check       - проверить синтаксис\n";
-    cout << "  vars        - показать значения переменных\n";
-    cout << "  exit        - выйти из IDE\n";
-    cout << "\nВведите команду:\n";
+    cout << "Добро пожаловать в Pascal-- IDE!" << endl;
+    cout << "Доступные команды:" << endl;
+    cout << "  new         - создать новый файл программы" << endl;
+    cout << "  open <имя>  - открыть программу из файла" << endl;
+    cout << "  save <имя>  - сохранить программу в файл" << endl;
+    cout << "  edit        - перейти в режим редактирования" << endl;
+    cout << "  run         - выполнить программу" << endl;
+    cout << "  check       - проверить синтаксис" << endl;
+    cout << "  vars        - показать значения переменных" << endl;
+    cout << "  exit        - выйти из IDE" << endl;
+    cout << endl << "Введите команду:" << endl;
 }
 
 // Установить кодировку консоли для корректного отображения русских символов
@@ -54,17 +44,14 @@ int main() {
     // Устанавливаем кодировку консоли
     setConsoleEncoding();
 
-    // Выводим приветственное сообщение с текущей кодировкой консоли
-    cout << "Pascal-- IDE запущена. Кодировка консоли: " << GetConsoleCP() << endl;
-
     // Основные переменные для хранения команд, исходного кода, имени файла и состояния
-    string command;
     string source, filename;
     bool running = true;   // Флаг для основного цикла программы
     bool edited = false;   // Флаг наличия несохранённых изменений
 
     // Главный цикл работы IDE
     while (running) {
+        string command;
         clearConsole();    // Очищаем экран перед каждой командой
         printMenu();       // Показываем меню
         cin.clear();
@@ -73,22 +60,20 @@ int main() {
         // Создание нового файла программы
         if (command == "new") {
             clearConsole();
-            cout << "Введите исходный код программы (введите 'end' на новой строке для завершения):\n";
+            cout << "Введите исходный код программы (введите 'end' на новой строке для завершения):" << endl;
             source.clear();
             string line;
-            while (getline(cin, line) && line != "end") {
+            while (getline(cin, line) && line != "end")
                 source += line + "\n";
-            }
             edited = true;
-            cout << "\nПрограмма сохранена в буфере.\n";
+            cout << endl << "Программа сохранена в буфере." << endl;
             system("pause");
         }
         // Открытие программы из файла
         else if (command.find("open ") == 0) {
             string fname = command.substr(5);
-            if (fname.empty()) {
-                cout << "Укажите имя файла после команды open.\n";
-            }
+            if (fname.empty())
+                cout << "Укажите имя файла после команды open." << endl;
             else {
                 ifstream file(fname);
                 if (file.is_open()) {
@@ -96,106 +81,96 @@ int main() {
                     file.close();
                     filename = fname;
                     edited = false;
-                    cout << "\nФайл успешно загружен.\n";
+                    cout << endl << "Файл успешно загружен." << endl;
                 }
-                else {
-                    cerr << "\nОшибка: Не удалось открыть файл.\n";
-                }
+                else
+                    cerr << endl << "Ошибка: Не удалось открыть файл." << endl;
             }
             system("pause");
         }
         // Сохранение программы в файл
         else if (command.rfind("save ", 0) == 0) {
             string fname = command.substr(5);
-            if (fname.empty()) {
-                cout << "Укажите имя файла после команды save.\n";
-            }
+            if (fname.empty())
+                cout << "Укажите имя файла после команды save." << endl;
             else {
                 ofstream file(fname);
                 if (file.is_open()) {
                     file << source;
                     filename = fname;
                     edited = false;
-                    cout << "\nФайл успешно сохранён.\n";
+                    cout << endl << "Файл успешно сохранён." << endl;
                 }
-                else {
-                    cerr << "\nОшибка: Не удалось сохранить файл.\n";
-                }
+                else
+                    cerr << endl << "Ошибка: Не удалось сохранить файл." << endl;
             }
             system("pause");
         }
         // Редактирование исходного кода программы
         else if (command == "edit") {
             clearConsole();
-            cout << "Текущий исходный код:\n\n" << source << "\n";
-            cout << "Введите новый исходный код (введите 'end' на новой строке для завершения):\n";
+            cout << "Текущий исходный код:" << endl << endl << source << endl;
+            cout << "Введите новый исходный код (введите 'end' на новой строке для завершения):" << endl;
             source.clear();
             string line;
-            while (getline(cin, line) && line != "end") {
+            while (getline(cin, line) && line != "end")
                 source += line + "\n";
-            }
             edited = true;
-            cout << "\nИзменения сохранены.\n";
+            cout << endl << "Изменения сохранены." << endl;
             system("pause");
         }
         // Проверка синтаксиса программы
         else if (command == "check" && !source.empty()) {
             try {
-                cout << "\nПроверка синтаксиса...\n";
+                cout << endl << "Проверка синтаксиса..." << endl;
                 Lexer lexer(source);
                 auto tokens = lexer.tokenize();
                 Parser parser(tokens);
                 parser.parse();
-                cout << "\nСинтаксических ошибок не обнаружено.\n";
+                cout << endl << "Синтаксических ошибок не обнаружено." << endl;
             }
             catch (const exception& e) {
-                cerr << "\nОшибка: " << e.what() << endl;
+                cerr << endl << "Ошибка: " << e.what() << endl;
             }
             system("pause");
         }
         // Запуск программы (интерпретация)
         else if (command == "run" && !source.empty()) {
             try {
-                cout << "\nЗапуск программы...\n\n";
+                cout << endl << "Запуск программы..." << endl << endl;
                 Lexer lexer(source);
                 auto tokens = lexer.tokenize();
                 Parser parser(tokens);
                 auto ast = parser.parse();
                 Interpreter interpreter;
                 interpreter.run(ast);
-                cout << "\n\nПрограмма завершила выполнение.\n";
+                cout << endl << endl << "Программа завершила выполнение." << endl;
             }
             catch (const exception& e) {
-                cerr << "\nОшибка выполнения: " << e.what() << endl;
+                cerr << endl << "Ошибка выполнения: " << e.what() << endl;
             }
             system("pause");
         }
         // Показать значения переменных (функционал не реализован)
         else if (command == "vars") {
-            cout << "\nФункционал отображения переменных еще не реализован.\n";
+            cout << endl << "Функционал отображения переменных еще не реализован." << endl;
             system("pause");
         }
         // Выход из IDE с предупреждением о несохранённых изменениях
         else if (command == "exit") {
             if (edited) {
-                cout << "\nУ вас есть несохраненные изменения. Вы уверены, что хотите выйти? (y/n): ";
+                cout << endl << "У вас есть несохраненные изменения. Вы уверены, что хотите выйти? (y/n): ";
                 string answer;
                 getline(cin, answer);
-                if (answer == "y" || answer == "Y") {
+                if (answer == "y" || answer == "Y")
                     running = false;
-                }
             }
-            else {
+            else
                 running = false;
-            }
-        }
-        // Команда help (меню выводится всегда)
-        else if (command == "help") {
-            // Меню уже выводится в начале каждой итерации
         }
         // Неизвестная команда
         else {
-            cout << "\nНеизвестная команда. Введите 'help' для вывода списка команд.\n";
+            cout << endl << "Неизвестная команда." << endl;
             system("pause");
         }
     }

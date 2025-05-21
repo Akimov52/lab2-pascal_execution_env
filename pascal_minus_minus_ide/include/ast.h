@@ -1,12 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
-#include "lexer.h"
-
-// Используем TokenType из lexer.h для связи лексера и парсера
-using PascalToken::TokenType;
-
-using namespace std;
+#include "lexer.h" // Для TokenType
 
 // Перечисление поддерживаемых типов данных для семантического анализа и проверки типов
 enum class DataType {
@@ -25,17 +20,18 @@ struct TypeInfo {
     DataType type;                         // Базовый тип данных
     shared_ptr<TypeInfo> elementType;      // Тип элементов (для массивов)
     int arraySize = 0;                     // Размер массива (если применимо)
-    TypeInfo(DataType t) : type(t), elementType(nullptr), arraySize(0) {}
+
+    explicit TypeInfo(DataType t) : type(t), elementType(nullptr), arraySize(0) {}
 };
 
 // Перечисление всех возможных типов узлов AST (абстрактного синтаксического дерева)
 enum class ASTNodeType {
     Program,        // Главная программа
     Block,          // Блок begin-end
-    ConstSection,
-    ConstDecl,      // Объявление константы
-    VarSection,
-    VarDecl,        // Объявление переменной
+    ConstSection,   // Секция объявления констант
+    ConstDecl,      // Объявление одной константы
+    VarSection,     // Секция объявления переменных
+    VarDecl,        // Объявление одной переменной
     Assignment,     // Присваивание
     If,             // Условный оператор
     While,          // Цикл while

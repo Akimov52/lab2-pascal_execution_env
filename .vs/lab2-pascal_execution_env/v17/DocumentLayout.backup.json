@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\pascal_minus_minus_ide\\oleg||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:pascal_minus_minus_ide\\pascal_minus_minus_ide\\oleg||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\Algorithms_and_objects.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Algorithms_and_objects.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     },
@@ -46,19 +50,32 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "oleg",
+              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\pascal_minus_minus_ide\\oleg",
+              "RelativeDocumentMoniker": "pascal_minus_minus_ide\\pascal_minus_minus_ide\\oleg",
+              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\pascal_minus_minus_ide\\oleg",
+              "RelativeToolTip": "pascal_minus_minus_ide\\pascal_minus_minus_ide\\oleg",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-05-21T12:30:50.627Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Algorithms_and_objects.md",
               "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\Algorithms_and_objects.md",
               "RelativeDocumentMoniker": "Algorithms_and_objects.md",
               "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\Algorithms_and_objects.md",
               "RelativeToolTip": "Algorithms_and_objects.md",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAAAC8AAAACAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC0AAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
               "WhenOpened": "2025-05-19T14:25:18.785Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "README.md",
               "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\README.md",
               "RelativeDocumentMoniker": "README.md",
@@ -66,18 +83,16 @@
               "RelativeToolTip": "README.md",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
-              "WhenOpened": "2025-05-19T14:25:16.991Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-19T14:25:16.991Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "\u0421\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u043E\u0431\u0437\u043E\u0440\u0430 CMake",
               "DocumentMoniker": "\u0421\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u043E\u0431\u0437\u043E\u0440\u0430 CMake",
               "ToolTip": "\u0421\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u043E\u0431\u0437\u043E\u0440\u0430 CMake",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-05-19T14:25:08.309Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-19T14:25:08.309Z"
             }
           ]
         }

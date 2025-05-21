@@ -4,9 +4,7 @@
 Token::Token() : type(TokenType::EndOfFile), value(""), line(0), column(0) {}
 
 // Конструктор токена с параметрами: тип, значение, строка и столбец
-Token::Token(TokenType t, const string& v, int l, int c)
-    : type(t), value(v), line(l), column(c) {
-}
+Token::Token(TokenType t, const string& v, int l, int c) : type(t), value(v), line(l), column(c) {}
 
 // Проверка: является ли символ латинской или кириллической буквой (Windows-1251)
 bool isAlphaCyrillic(unsigned char c) {
@@ -19,22 +17,20 @@ bool isAlphaCyrillic(unsigned char c) {
     return false;
 }
 
-using namespace std;
-
 // Конструктор лексера: принимает исходный текст программы
-Lexer::Lexer(const string& source)
-    : source(source), position(0), line(1), column(1) {
-}
+Lexer::Lexer(const string& source) : source(source), position(0), line(1), column(1) {}
 
 // Получить текущий символ
 char Lexer::current() const {
-    if (position >= source.length()) return '\0';
+    if (position >= source.length())
+        return '\0';
     return source[position];
 }
 
 // Посмотреть следующий символ (без продвижения позиции)
 char Lexer::peek() const {
-    if (position + 1 >= source.length()) return '\0';
+    if (position + 1 >= source.length())
+        return '\0';
     return source[position + 1];
 }
 
@@ -45,29 +41,30 @@ void Lexer::advance() {
             line++;
             column = 1;
         }
-        else {
+        else
             column++;
-        }
         position++;
     }
 }
 
 // Пропустить все пробельные символы
 void Lexer::skipWhitespace() {
-    while (isspace((unsigned char)current())) {
+    while (isspace((unsigned char)current()))
         advance();
-    }
 }
 
 // Пропустить комментарий (Pascal: { ... } или (* ... *))
 void Lexer::skipComment() {
     if (current() == '{') {
         advance();
-        while (current() != '}' && current() != '\0') advance();
-        if (current() == '}') advance();
+        while (current() != '}' && current() != '\0')
+            advance();
+        if (current() == '}')
+            advance();
     }
     else if (current() == '(' && peek() == '*') {
-        advance(); advance();
+        advance();
+        advance();
         int level = 1;
         while (level > 0 && current() != '\0') {
             if (current() == '(' && peek() == '*') {
@@ -78,9 +75,8 @@ void Lexer::skipComment() {
                 advance(); advance();
                 level--;
             }
-            else {
+            else
                 advance();
-            }
         }
     }
 }
@@ -101,7 +97,7 @@ Token Lexer::makeToken(TokenType type, const string& value) {
 
 // Получить таблицу ключевых слов Pascal
 const unordered_map<string, TokenType>& Lexer::getKeywords() const {
-    static const unordered_map<string, TokenType> keywords = {
+    static unordered_map<string, TokenType> keywords = {
         {"program", TokenType::Program},
         {"var", TokenType::Var},
         {"const", TokenType::Const},
@@ -176,9 +172,8 @@ Token Lexer::readIdentifierOrKeyword() {
 
     const auto& keywords = getKeywords();
     auto it = keywords.find(text);
-    if (it != keywords.end()) {
+    if (it != keywords.end())
         return makeToken(it->second, text);
-    }
 
     return makeToken(TokenType::Identifier, text);
 }
@@ -193,17 +188,15 @@ Token Lexer::readString() {
     while (current() != quote && current() != '\0') {
         if (current() == '\\') {
             advance(); // Пропустить обратный слэш
-            if (current() == '\0') break;
+            if (current() == '\0')
+                break;
             // Обработка escape-последовательностей
-            if (current() == 'n') {
+            if (current() == 'n')
                 str += '\n';
-            }
-            else if (current() == 't') {
+            else if (current() == 't')
                 str += '\t';
-            }
-            else {
+            else
                 str += current(); // Просто добавить символ как есть
-            }
             advance();
         }
         else {
@@ -229,17 +222,15 @@ vector<Token> Lexer::tokenize() {
         skipComment();
 
         char c = current();
-        if (c == '\0') break;
+        if (c == '\0')
+            break;
 
-        if (isAlphaCyrillic((unsigned char)c) || c == '_') {
+        if (isAlphaCyrillic((unsigned char)c) || c == '_')
             tokens.push_back(readIdentifierOrKeyword());
-        }
-        else if (isdigit((unsigned char)c)) {
+        else if (isdigit((unsigned char)c))
             tokens.push_back(readNumber());
-        }
-        else if (c == '"' || c == '\'') {
+        else if (c == '"' || c == '\'')
             tokens.push_back(readString());
-        }
         else {
             switch (c) {
             case '+':
@@ -272,9 +263,8 @@ vector<Token> Lexer::tokenize() {
                     tokens.push_back(makeToken(TokenType::NotEqual, "<>"));
                     advance();
                 }
-                else {
+                else
                     tokens.push_back(makeToken(TokenType::Less, "<"));
-                }
                 break;
             case '>':
                 advance();
@@ -282,9 +272,8 @@ vector<Token> Lexer::tokenize() {
                     tokens.push_back(makeToken(TokenType::GreaterEqual, ">="));
                     advance();
                 }
-                else {
+                else
                     tokens.push_back(makeToken(TokenType::Greater, ">"));
-                }
                 break;
             case ':':
                 advance();
@@ -292,9 +281,8 @@ vector<Token> Lexer::tokenize() {
                     tokens.push_back(makeToken(TokenType::Assign, ":="));
                     advance();
                 }
-                else {
+                else
                     tokens.push_back(makeToken(TokenType::Colon, ":"));
-                }
                 break;
             case ';':
                 tokens.push_back(makeToken(TokenType::Semicolon, ";"));
