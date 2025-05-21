@@ -34,6 +34,22 @@ void Interpreter::run(const shared_ptr<ASTNode>& root) {
     if (!root)
         return; // Если узел пустой — ничего не делаем
     switch (root->type) {
+    case ASTNodeType::ConstDecl: {
+        // root->value — имя константы; child[0] — её выражение
+        const string& name = root->value;
+        Value val = evaluateExpression(root->children[0]);
+        symbols[name] = val;
+        break;
+    }
+    case ASTNodeType::VarDecl: {
+        const string& name = root->value;                  // root->value — имя переменной
+        const string& typeName = root->children[0]->value; // Тип лежит в первом дочернем узле
+        if (typeName == "real" || typeName == "double")
+            symbols[name] = Value(0.0);
+        else
+            symbols[name] = Value(0);
+        break;
+    }
     case ASTNodeType::Program:
     case ASTNodeType::Block:
     case ASTNodeType::ConstSection:
@@ -41,9 +57,6 @@ void Interpreter::run(const shared_ptr<ASTNode>& root) {
         // Последовательно выполняем все подузлы (операторы)
         for (const auto& stmt : root->children)
             run(stmt);
-        break;
-    case ASTNodeType::ConstDecl:
-    case ASTNodeType::VarDecl:
         break;
     case ASTNodeType::Assignment:
         executeAssignment(root); // Присваивание переменной
@@ -113,25 +126,23 @@ void Interpreter::run(const shared_ptr<ASTNode>& root) {
             }
             break;
         }
-        else if (name == "Readln") {
-            // аналог executeRead + игнор остатка строки
+        else if (name == "Read" || name == "Readln") {
+            // аналог executeRead/execureReadln
             for (const auto& child : root->children) {
                 string varName = child->value;
-                int v;
-                cin >> v;
-                symbols[varName] = Value(v);
+                if (getValueType(varName) == ValueType::Real) {
+                    double v;
+                    cin >> v;
+                    symbols[varName] = Value(v);
+                }
+                else {
+                    int v;
+                    cin >> v;
+                    symbols[varName] = Value(v);
+                }
+            }
+            if (name == "Readln")
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            }
-            break;
-        }
-        else if (name == "Read") {
-            // executeRead без игнорирования
-            for (const auto& child : root->children) {
-                string varName = child->value;
-                int v;
-                cin >> v;
-                symbols[varName] = Value(v);
-            }
             break;
         }
         else
@@ -179,16 +190,26 @@ Value Interpreter::evaluateExpression(const shared_ptr<ASTNode>& node) {
         if (node->value == "+") {
             if (left.type == ValueType::String || right.type == ValueType::String)
                 return Value(left.strValue + right.strValue); // Конкатенация строк
+            if (left.type == ValueType::Real || right.type == ValueType::Real)
+                return Value(toReal(left) + toReal(right));
             return Value(left.intValue + right.intValue);
         }
-        if (node->value == "-")
+        if (node->value == "-") {
+            if (left.type == ValueType::Real || right.type == ValueType::Real)
+                return Value(toReal(left) - toReal(right));
             return Value(left.intValue - right.intValue);
-        if (node->value == "*")
+        }
+        if (node->value == "*") {
+            if (left.type == ValueType::Real || right.type == ValueType::Real)
+                return Value(toReal(left) * toReal(right));
             return Value(left.intValue * right.intValue);
+        }
         if (node->value == "/") {
-            if (right.intValue == 0)
+            double l = (left.type == ValueType::Real) ? left.realValue : left.intValue;
+            double r = (right.type == ValueType::Real) ? right.realValue : right.intValue;
+            if (r == 0.0)
                 throw runtime_error("Деление на ноль");
-            return Value(left.intValue / right.intValue);
+            return Value(l / r);
         }
 
         // Логические операции
@@ -199,29 +220,33 @@ Value Interpreter::evaluateExpression(const shared_ptr<ASTNode>& node) {
 
         // Операторы сравнения
         if (node->value == "=")
-            return Value(left.intValue == right.intValue);
+            return Value(toReal(left) == toReal(right));
         if (node->value == "<>")
-            return Value(left.intValue != right.intValue);
+            return Value(toReal(left) != toReal(right));
         if (node->value == "<")
-            return Value(left.intValue < right.intValue);
+            return Value(toReal(left) < toReal(right));
         if (node->value == "<=")
-            return Value(left.intValue <= right.intValue);
+            return Value(toReal(left) <= toReal(right));
         if (node->value == ">")
-            return Value(left.intValue > right.intValue);
+            return Value(toReal(left) > toReal(right));
         if (node->value == ">=")
-            return Value(left.intValue >= right.intValue);
+            return Value(toReal(left) >= toReal(right));
 
         throw runtime_error("Неизвестный бинарный оператор: " + node->value);
     }
     case ASTNodeType::UnOp:
         // Унарные операции
-        if (node->value == "-")
-            return Value(-evaluateExpression(node->children[0]).intValue);
+        if (node->value == "-") {
+            if (evaluateExpression(node->children[0]).type == ValueType::Real)
+                return Value(-evaluateExpression(node->children[0]).realValue);
+            else
+                return Value(-evaluateExpression(node->children[0]).intValue);
+        }
         if (node->value == "not")
             return Value(!evaluateExpression(node->children[0]).boolValue);
         throw runtime_error("Неизвестный унарный оператор: " + node->value);
     default:
-        throw runtime_error("Ошибка вычисления выражения");
+        throw runtime_error("Ошибка вычисления выражения"); 
     }
 }
 
@@ -277,9 +302,17 @@ void Interpreter::executeWrite(const shared_ptr<ASTNode>& node) {
 void Interpreter::executeRead(const shared_ptr<ASTNode>& node) {
     for (const auto& child : node->children) {
         string varName = child->value;   // Имя переменной
-        int value;
-        cin >> value;                    // Чтение значения из потока
-        symbols[varName] = Value(value); // Сохраняем в таблицу символов
+        // Определяем, целая или вещественная переменная
+        if (getValueType(varName) == ValueType::Real) {
+            double v;
+            cin >> v;
+            symbols[varName] = Value(v);
+        }
+        else {
+            int v;
+            cin >> v;
+            symbols[varName] = Value(v);
+        }
         if (node->type == ASTNodeType::Readln)
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Игнорируем остаток строки
     }
@@ -291,4 +324,20 @@ int Interpreter::getVarValue(const string& name) const {
     if (it == symbols.end())
         throw runtime_error("Переменная не найдена: " + name);
     return it->second.intValue;
+}
+
+// Получаем тип переменной из symbols
+ValueType Interpreter::getValueType(const string& name) const {
+    auto it = symbols.find(name);
+    if (it == symbols.end())
+        throw runtime_error("Переменная не найдена: " + name);
+    return it->second.type;
+}
+
+double Interpreter::toReal(const Value& v) const {
+    if (v.type == ValueType::Real)
+        return v.realValue;
+    if (v.type == ValueType::Integer)
+        return static_cast<double>(v.intValue);
+    throw runtime_error("Ожидалось числовое значение");
 }

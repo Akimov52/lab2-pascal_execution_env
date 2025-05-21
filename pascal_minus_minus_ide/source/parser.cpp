@@ -112,7 +112,8 @@ shared_ptr<ASTNode> Parser::parseVarSection() {
         // Для всех имён создаём отдельные VarDecl с общим типом
         for (const auto& name : names) {
             auto decl = make_shared<ASTNode>(ASTNodeType::VarDecl, name);
-            decl->value = typeName; // Сохраняем тип в поле value или children, по вашей архитектуре
+            auto typeNode = make_shared<ASTNode>(ASTNodeType::Identifier, typeName);
+            decl->children.push_back(typeNode);
             section->children.push_back(decl);
         }
     }

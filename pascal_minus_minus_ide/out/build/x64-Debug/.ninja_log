@@ -1,0 +1,10 @@
+# ninja log v6
+37	722	7695342481695830	CMakeFiles/pascal_minus_minus_ide.dir/source/parser.cpp.obj	284dabed661022c1
+32	724	7695342481652821	CMakeFiles/pascal_minus_minus_ide.dir/source/lexer.cpp.obj	26050ad8cb3eec95
+45	781	7695342481770936	CMakeFiles/pascal_minus_minus_ide.dir/source/symbol_table.cpp.obj	61e0f31532644c92
+41	841	7695342481732241	CMakeFiles/pascal_minus_minus_ide.dir/source/interpreter.cpp.obj	c6377141e5f9fb8e
+25	1828	7695342481573532	CMakeFiles/pascal_minus_minus_ide.dir/source/main.cpp.obj	a88c49e4f5ec8557
+1828	2277	7695342499612341	pascal_minus_minus_ide.exe	961d9233cdf8ad74
+25	713	7695354499250748	CMakeFiles/pascal_minus_minus_ide.dir/source/interpreter.cpp.obj	c6377141e5f9fb8e
+17	946	7695354499163966	CMakeFiles/pascal_minus_minus_ide.dir/source/main.cpp.obj	a88c49e4f5ec8557
+946	1156	7695354508454353	pascal_minus_minus_ide.exe	961d9233cdf8ad74

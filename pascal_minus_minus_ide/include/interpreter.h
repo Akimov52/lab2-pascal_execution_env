@@ -37,4 +37,6 @@ private:
     void executeRead(const shared_ptr<ASTNode>& node);
 
     Value evaluateExpression(const shared_ptr<ASTNode>& node);
+    ValueType getValueType(const string& name) const; // Помощник: вернуть тип переменной или бросить, если нет в таблице
+    double toReal(const Value& v) const;
 };
