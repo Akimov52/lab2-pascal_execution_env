@@ -37,8 +37,18 @@ void Interpreter::run(const shared_ptr<ASTNode>& root) {
     case ASTNodeType::ConstDecl: {
         // root->value — имя константы; child[0] — её выражение
         const string& name = root->value;
-        Value val = evaluateExpression(root->children[0]);
-        symbols[name] = val;
+        const string& typeName = root->children[0]->value;
+        Value val = evaluateExpression(root->children[1]);
+        if (typeName == "real" || typeName == "double")
+            symbols[name] = Value(val.realValue);
+        else if (typeName == "integer")
+            symbols[name] = Value(val.intValue);
+        else if (typeName == "boolean")
+            symbols[name] = Value(val.boolValue);
+        else if (typeName == "string")
+            symbols[name] = Value(val.strValue);
+        else
+            throw runtime_error("Неизвестный тип константы: " + typeName);
         break;
     }
     case ASTNodeType::VarDecl: {
@@ -158,8 +168,11 @@ Value Interpreter::evaluateExpression(const shared_ptr<ASTNode>& node) {
     switch (node->type) {
     case ASTNodeType::Number:
         return Value(stoi(node->value)); // Преобразуем строку в число
-    case ASTNodeType::Real:
-        return Value(stod(node->value));
+    case ASTNodeType::Real: {
+        double val = stod(node->value);
+    cout << "[DEBUG evaluateExpression::Real] node->value=" << node->value << " parsed=" << val << endl;
+    return Value(val);
+    }
     case ASTNodeType::Boolean:
         return Value(node->value == "true");
     case ASTNodeType::String:

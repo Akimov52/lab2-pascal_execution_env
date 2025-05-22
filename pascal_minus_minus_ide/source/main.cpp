@@ -8,6 +8,7 @@
 
 #include "parser.h"
 #include "interpreter.h"
+#include <symbol_table.h>
 
 // Очистить экран консоли (Windows)
 void clearConsole() {
@@ -36,6 +37,8 @@ void setConsoleEncoding() {
     SetConsoleOutputCP(1251);
     setlocale(LC_ALL, "Russian");
 
+    setlocale(LC_NUMERIC, "C");
+
     // Очищаем экран
     system("cls");
 }
@@ -48,6 +51,8 @@ int main() {
     string source, filename;
     bool running = true;   // Флаг для основного цикла программы
     bool edited = false;   // Флаг наличия несохранённых изменений
+    // Указатель на последний запущенный интерпретатор — нужен для команды vars
+    Interpreter* lastInterp = nullptr;
 
     // Главный цикл работы IDE
     while (running) {
@@ -142,8 +147,9 @@ int main() {
                 auto tokens = lexer.tokenize();
                 Parser parser(tokens);
                 auto ast = parser.parse();
-                Interpreter interpreter;
-                interpreter.run(ast);
+                delete lastInterp;
+                lastInterp = new Interpreter();
+                lastInterp->run(ast);
                 cout << endl << endl << "Программа завершила выполнение." << endl;
             }
             catch (const exception& e) {
@@ -153,7 +159,40 @@ int main() {
         }
         // Показать значения переменных (функционал не реализован)
         else if (command == "vars") {
-            cout << endl << "Функционал отображения переменных еще не реализован." << endl;
+            cout << endl;
+            if (lastInterp) {
+                // Заполняем SymbolTable из symbols интерпретатора
+                SymbolTable st;
+                auto syms = lastInterp->getAllSymbols(); // map<string, Value>
+                for (const auto& [name, val] : syms) {
+                    // Подготовим строку типа и значения
+                    string typeStr;
+                    string valStr;
+                    switch (val.type) {
+                    case ValueType::Integer:
+                        typeStr = "integer";
+                        valStr = to_string(val.intValue);
+                        break;
+                    case ValueType::Real:
+                        typeStr = "real";
+                        valStr = to_string(val.realValue);
+                        break;
+                    case ValueType::Boolean:
+                        typeStr = "boolean";
+                        valStr = val.boolValue ? "true" : "false";
+                        break;
+                    case ValueType::String:
+                        typeStr = "string";
+                        valStr = val.strValue;
+                        break;
+                    }
+                    st.addSymbol(SymbolInfo{ name, typeStr, valStr });
+                }
+                // Выводим таблицу
+                st.printTable();
+            }
+            else
+                cout << "Программу ещё не запускали, переменных нет." << endl;
             system("pause");
         }
         // Выход из IDE с предупреждением о несохранённых изменениях
@@ -174,6 +213,6 @@ int main() {
             system("pause");
         }
     }
-
+    delete lastInterp;
     return 0;
 }

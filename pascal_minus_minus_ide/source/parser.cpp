@@ -69,12 +69,18 @@ shared_ptr<ASTNode> Parser::parseConstSection() {
     while (current().type == TokenType::Identifier) {
         string name = current().value;
         expect(TokenType::Identifier, "Ожидался идентификатор");
-        if (match(TokenType::Colon))
+        string typeName;
+        if (match(TokenType::Colon)) {
             expect(TokenType::Identifier, "Ожидался тип константы");
+            typeName = tokens[pos - 1].value;
+        }
+        else
+            throw runtime_error("Нужен тип для константы " + name);
         expect(TokenType::Equal, "Ожидался '='");
         auto value = parseExpression();
         expect(TokenType::Semicolon, "Ожидалась ';'");
         auto decl = make_shared<ASTNode>(ASTNodeType::ConstDecl, name);
+        decl->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, typeName));
         decl->children.push_back(value);
         section->children.push_back(decl);
     }
@@ -300,13 +306,13 @@ shared_ptr<ASTNode> Parser::parseFactor() {
         expect(TokenType::RParen, "Ожидалась ')'");
         return expr;
     }
-    if (current().type == TokenType::Number) {
-        auto node = make_shared<ASTNode>(ASTNodeType::Number, current().value);
+    if (current().type == TokenType::RealLiteral) {
+        auto node = make_shared<ASTNode>(ASTNodeType::Real, current().value);
         pos++;
         return node;
     }
-    if (current().type == TokenType::RealLiteral) {
-        auto node = make_shared<ASTNode>(ASTNodeType::Real, current().value);
+    if (current().type == TokenType::Number) {
+        auto node = make_shared<ASTNode>(ASTNodeType::Number, current().value);
         pos++;
         return node;
     }

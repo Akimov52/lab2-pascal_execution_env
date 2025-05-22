@@ -26,6 +26,7 @@ public:
 
     void run(const shared_ptr<ASTNode>& root);
     int getVarValue(const string& name) const;
+    const map<string, Value>& getAllSymbols() const { return symbols; }
 
 private:
     map<string, Value> symbols;
