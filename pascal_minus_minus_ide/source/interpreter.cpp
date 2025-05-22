@@ -168,11 +168,8 @@ Value Interpreter::evaluateExpression(const shared_ptr<ASTNode>& node) {
     switch (node->type) {
     case ASTNodeType::Number:
         return Value(stoi(node->value)); // Преобразуем строку в число
-    case ASTNodeType::Real: {
-        double val = stod(node->value);
-    cout << "[DEBUG evaluateExpression::Real] node->value=" << node->value << " parsed=" << val << endl;
-    return Value(val);
-    }
+    case ASTNodeType::Real:
+        return Value(stod(node->value));
     case ASTNodeType::Boolean:
         return Value(node->value == "true");
     case ASTNodeType::String:
