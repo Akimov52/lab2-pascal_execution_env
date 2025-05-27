@@ -23,6 +23,7 @@ namespace PascalToken {
         True, False,
         Array, Of, DotDot,
         Procedure, Function, Return,
+        In, // Добавляем токен для оператора in
 
         // Операторы и разделители
         Plus, Minus, Multiply, Divide,

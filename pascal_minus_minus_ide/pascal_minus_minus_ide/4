@@ -1,0 +1,12 @@
+program vowels;
+var 
+  s: string;
+  count: integer;
+begin
+  s := 'Hello, world!';
+  count := 0;
+  for i := 1 to length(s) do
+    if s[i] in ['a', 'e', 'i', 'o', 'u'] then
+      count := count + 1;
+  writeln('Количество гласных: ', count);
+end.

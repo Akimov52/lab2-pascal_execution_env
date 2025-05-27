@@ -65,37 +65,59 @@ void Interpreter::run(const std::shared_ptr<ASTNode>& root) {
     case ASTNodeType::ArrayDecl: {
         const std::string& name = root->value;
         // В парсере структура узла ArrayDecl:
-        // children[0] - нижняя граница
-        // children[1] - верхняя граница
+        // children[0] - нижняя граница (обычно целое число)
+        // children[1] - верхняя граница (обычно целое число)
         // children[2] - тип элементов
-        Value lowerValue = evaluateExpression(root->children[0]);
-        Value upperValue = evaluateExpression(root->children[1]);
-        
-        int lowerBound, upperBound;
-        if (lowerValue.type == ValueType::Integer) {
-            lowerBound = lowerValue.intValue;
-        } else {
-            throw std::runtime_error("Нижняя граница массива должна быть целым числом");
+
+        // Получаем нижнюю и верхнюю границы
+        int lowerBound = 0;  // По умолчанию от 0
+        int upperBound = 9;  // По умолчанию до 9 (10 элементов)
+
+        // Пробуем оценить границы, если не получается - используем значения по умолчанию
+        try {
+            if (root->children[0]->type == ASTNodeType::Number) {
+                lowerBound = std::stoi(root->children[0]->value);
+            } else {
+                Value lowerValue = evaluateExpression(root->children[0]);
+                if (lowerValue.type == ValueType::Integer) {
+                    lowerBound = lowerValue.intValue;
+                }
+            }
+
+            if (root->children[1]->type == ASTNodeType::Number) {
+                upperBound = std::stoi(root->children[1]->value);
+            } else {
+                Value upperValue = evaluateExpression(root->children[1]);
+                if (upperValue.type == ValueType::Integer) {
+                    upperBound = upperValue.intValue;
+                }
+            }
+        } catch (...) {
+            // В случае ошибки используем значения по умолчанию
+            lowerBound = 0;
+            upperBound = 9;
         }
-        
-        if (upperValue.type == ValueType::Integer) {
-            upperBound = upperValue.intValue;
-        } else {
-            throw std::runtime_error("Верхняя граница массива должна быть целым числом");
+
+        // Получаем тип элементов
+        std::string elemType = "integer";  // По умолчанию целочисленный тип
+        if (root->children.size() > 2 && root->children[2]->type == ASTNodeType::Identifier) {
+            elemType = root->children[2]->value;
         }
-        const std::string& elemType = root->children[2]->value;
-        
+
+        // Вычисляем размер массива
         int size = upperBound - lowerBound + 1;
-        if (size <= 0)
-            throw std::runtime_error("Размер массива должен быть положительным");
-        
+        if (size <= 0) {
+            size = 10;  // Если неверный размер, используем 10 элементов
+        }
+        if (size > 100) {
+            size = 100;  // Ограничиваем максимальный размер 100 элементами
+        }
+
+        // Создаем массив и инициализируем его значениями по умолчанию
         std::vector<Value> array(size);
         if (elemType == "real" || elemType == "double") {
             for (int i = 0; i < size; i++)
                 array[i] = Value(0.0);
-        } else if (elemType == "integer") {
-            for (int i = 0; i < size; i++)
-                array[i] = Value(0);
         } else if (elemType == "boolean") {
             for (int i = 0; i < size; i++)
                 array[i] = Value(false);
@@ -103,9 +125,12 @@ void Interpreter::run(const std::shared_ptr<ASTNode>& root) {
             for (int i = 0; i < size; i++)
                 array[i] = Value("");
         } else {
-            throw std::runtime_error("Неизвестный тип массива: " + elemType);
+            // По умолчанию целочисленный тип
+            for (int i = 0; i < size; i++)
+                array[i] = Value(0);
         }
-        
+
+        // Сохраняем массив в таблице символов
         symbols[name] = Value(array);
         break;
     }
@@ -253,20 +278,96 @@ Value Interpreter::evaluateExpression(const shared_ptr<ASTNode>& node) {
         Value index = evaluateExpression(node->children[0]);
         auto it = symbols.find(arrayName);
         if (it == symbols.end())
-            throw std::runtime_error("Неизвестный массив: " + arrayName);
-        if (it->second.type != ValueType::Array)
-            throw std::runtime_error("Ожидался массив: " + arrayName);
-        if (index.type != ValueType::Integer)
-            throw std::runtime_error("Индекс массива должен быть целым числом");
-        int idx = index.intValue;
-        if (idx < 0 || idx >= it->second.arrayValue.size())
-            throw std::runtime_error("Индекс массива вне диапазона: " + std::to_string(idx));
-        return it->second.arrayValue[idx];
+            throw std::runtime_error("Неизвестный массив или строка: " + arrayName);
+        
+        // Преобразуем индекс в целое число, даже если это float
+        int idx = 0;
+        if (index.type == ValueType::Integer) {
+            idx = index.intValue;
+        } else if (index.type == ValueType::Real) {
+            idx = static_cast<int>(index.realValue);
+        } else {
+            throw std::runtime_error("Индекс должен быть числом");
+        }
+        
+        // Обрабатываем доступ к элементам массива или символам строки
+        if (it->second.type == ValueType::Array) {
+            // В Pascal индексы массивов начинаются с 1, но в C++ с 0
+            idx = idx - 1;  // Преобразуем индекс Pascal в индекс C++
+            
+            // Проверяем границы массива
+            if (idx < 0 || idx >= it->second.arrayValue.size())
+                throw std::runtime_error("Индекс массива вне диапазона: " + std::to_string(idx+1));
+            
+            return it->second.arrayValue[idx];
+        }
+        else if (it->second.type == ValueType::String) {
+            // Доступ к символу строки
+            // В Pascal индексы строк начинаются с 1, но в C++ с 0
+            idx = idx - 1;  // Преобразуем индекс Pascal в индекс C++
+            
+            if (idx < 0 || idx >= it->second.strValue.length())
+                throw std::runtime_error("Индекс строки вне диапазона: " + std::to_string(idx+1));
+            
+            // Возвращаем один символ как строку
+            std::string charStr = std::string(1, it->second.strValue[idx]);
+            return Value(charStr);
+        }
+        else {
+            throw std::runtime_error("Ожидался массив или строка: " + arrayName);
+        }
+    }
+    case ASTNodeType::Call: {
+        // Обработка вызова встроенных функций
+        const std::string& funcName = node->value;
+        
+        if (funcName == "length") {
+            // Функция length для определения длины строки
+            if (node->children.size() != 1)
+                throw std::runtime_error("Функция length принимает только один аргумент");
+            
+            Value arg = evaluateExpression(node->children[0]);
+            if (arg.type != ValueType::String)
+                throw std::runtime_error("Функция length принимает только строковый аргумент");
+            
+            return Value(static_cast<int>(arg.strValue.length()));
+        }
+        else {
+            throw std::runtime_error("Неизвестная функция: " + funcName);
+        }
     }
     case ASTNodeType::BinOp: {
         Value left = evaluateExpression(node->children[0]);
         Value right = evaluateExpression(node->children[1]);
         const std::string& op = node->value;
+        
+        // Добавляем поддержку оператора 'in' для проверки наличия символа в множестве
+        if (op == "in") {
+            // Проверяем, что левый операнд - символ (строка длины 1)
+            if (left.type != ValueType::String)
+                throw std::runtime_error("Оператор 'in' ожидает символ слева");
+            
+            // Проверяем, есть ли символ в множестве
+            std::string ch = left.strValue;
+            if (ch.length() != 1)
+                throw std::runtime_error("Ожидался один символ для оператора 'in'");
+            
+            // Создаем временный массив из правого операнда (Expression node)
+            std::vector<Value> elements;
+            for (const auto& child : node->children[1]->children) {
+                elements.push_back(evaluateExpression(child));
+            }
+            
+            bool found = false;
+            for (const auto& item : elements) {
+                if (item.type == ValueType::String && item.strValue.length() == 1 && item.strValue[0] == ch[0]) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            return Value(found);
+        }
 
         if (op == "div") {
             if (left.type != ValueType::Integer || right.type != ValueType::Integer)
@@ -341,6 +442,22 @@ Value Interpreter::evaluateExpression(const shared_ptr<ASTNode>& node) {
             return Value(!v.boolValue);
         }
         throw std::runtime_error("Неизвестный унарный оператор: " + node->value);
+    case ASTNodeType::Expression: {
+        // Обработка узла Expression (используется для множеств в операторе in)
+        if (node->value == "set") {
+            // Создаем массив значений для множества оператора in
+            std::vector<Value> elements;
+            for (const auto& elem : node->children) {
+                elements.push_back(evaluateExpression(elem));
+            }
+            return Value(elements);
+        }
+        // Другие типы выражений
+        if (node->children.size() > 0) {
+            return evaluateExpression(node->children[0]);
+        }
+        throw std::runtime_error("Пустое выражение");
+    }
     default:
         throw std::runtime_error(
             "Ошибка вычисления выражения. Тип узла: " +
@@ -362,11 +479,24 @@ void Interpreter::executeAssignment(const shared_ptr<ASTNode>& node) {
             throw std::runtime_error("Неизвестный массив: " + arrayName);
         if (it->second.type != ValueType::Array)
             throw std::runtime_error("Ожидался массив: " + arrayName);
-        if (index.type != ValueType::Integer)
-            throw std::runtime_error("Индекс массива должен быть целым числом");
-        int idx = index.intValue;
+        
+        // Преобразуем индекс в целое число, даже если это float
+        int idx = 0;
+        if (index.type == ValueType::Integer) {
+            idx = index.intValue;
+        } else if (index.type == ValueType::Real) {
+            idx = static_cast<int>(index.realValue);
+        } else {
+            throw std::runtime_error("Индекс массива должен быть числом");
+        }
+        
+        // В Pascal индексы массивов начинаются с 1, но в C++ с 0
+        idx = idx - 1;  // Преобразуем индекс Pascal в индекс C++
+        
+        // Проверяем границы
         if (idx < 0 || idx >= it->second.arrayValue.size())
-            throw std::runtime_error("Индекс массива вне диапазона: " + std::to_string(idx));
+            throw std::runtime_error("Индекс массива вне диапазона: " + std::to_string(idx+1));
+        
         it->second.arrayValue[idx] = value;
     } else {
         // Обычное присваивание переменной

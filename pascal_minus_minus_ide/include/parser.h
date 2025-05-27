@@ -35,6 +35,7 @@ private:
     shared_ptr<ASTNode> parseRead();             // Read(...)
     shared_ptr<ASTNode> parseReadln();           // Readln(...)
     shared_ptr<ASTNode> parseWriteln();          // Write(...)
+    shared_ptr<ASTNode> parseLogicalExpression(); // Выражение с логическими операциями
     shared_ptr<ASTNode> parseExpression();       // Общее выражение
     shared_ptr<ASTNode> parseSimpleExpression(); // Простое выражение (без логики)
     shared_ptr<ASTNode> parseTerm();             // Термы (умножение, деление и т.д.)
