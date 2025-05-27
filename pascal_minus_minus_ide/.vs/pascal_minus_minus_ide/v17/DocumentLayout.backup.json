@@ -1,61 +1,49 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\",
+  "WorkspaceRootPath": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\interpreter.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\interpreter.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:source\\interpreter.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\symbol_table.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:source\\symbol_table.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\symbol_table.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:include\\symbol_table.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\parser.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:source\\parser.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\interpreter.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:include\\interpreter.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:source\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\postfix.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\users\\Downloads\\[SubtitleTools.com] main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\parser.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:source\\parser.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\postfix.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:source\\postfix.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\lexer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\symbol_table.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:source\\symbol_table.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\lexer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:source\\lexer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\postfix.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:include\\postfix.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\parser.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\parser.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:include\\parser.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\lexer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\lexer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:include\\lexer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\ast.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\ast.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:include\\ast.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\type_checker.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:include\\type_checker.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22621.0\\shared\\rpcndr.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\interpreter.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{FEE6EFA8-D935-4FBE-B001-70B0569428B1}|pascal_minus_minus_ide\\pascal_minus_minus_ide.vcxproj|solutionrelative:include\\interpreter.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -65,195 +53,141 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 11,
+          "SelectedChildIndex": 3,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "[SubtitleTools.com] main.cpp",
+              "DocumentMoniker": "C:\\Users\\users\\Downloads\\[SubtitleTools.com] main.cpp",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\Downloads\\[SubtitleTools.com] main.cpp",
+              "ToolTip": "C:\\Users\\users\\Downloads\\[SubtitleTools.com] main.cpp",
+              "RelativeToolTip": "..\\..\\..\\..\\Downloads\\[SubtitleTools.com] main.cpp",
+              "ViewState": "AgIAALgAAAAAAAAAAAAiwNkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-05-27T01:05:29.725Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "rpcndr.h",
-              "DocumentMoniker": "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22621.0\\shared\\rpcndr.h",
-              "ToolTip": "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.22621.0\\shared\\rpcndr.h",
-              "ViewState": "AgIAAMEDAAAAAAAAAAAlwNYDAAAFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-21T11:32:20.105Z"
+              "DocumentIndex": 4,
+              "Title": "postfix.cpp",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\postfix.cpp",
+              "RelativeDocumentMoniker": "source\\postfix.cpp",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\postfix.cpp",
+              "RelativeToolTip": "source\\postfix.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-05-27T01:04:04.062Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "main.cpp",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\main.cpp",
-              "RelativeDocumentMoniker": "source\\main.cpp",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\main.cpp",
-              "RelativeToolTip": "source\\main.cpp",
-              "ViewState": "AgIAABsAAAAAAAAAAAAAACYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-05-19T14:48:48.728Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "parser.cpp",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\parser.cpp",
-              "RelativeDocumentMoniker": "source\\parser.cpp",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\parser.cpp",
-              "RelativeToolTip": "source\\parser.cpp",
-              "ViewState": "AgIAABkBAAAAAAAAAAAAwBwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-05-19T14:48:49.292Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "postfix.cpp",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\postfix.cpp",
-              "RelativeDocumentMoniker": "source\\postfix.cpp",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\postfix.cpp",
-              "RelativeToolTip": "source\\postfix.cpp",
-              "ViewState": "AgIAAGcAAAAAAAAAAAAQwI8AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-05-19T14:48:49.878Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "symbol_table.cpp",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\symbol_table.cpp",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\symbol_table.cpp",
               "RelativeDocumentMoniker": "source\\symbol_table.cpp",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\symbol_table.cpp",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\symbol_table.cpp",
               "RelativeToolTip": "source\\symbol_table.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFUAAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-05-19T14:48:50.521Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "lexer.cpp",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\lexer.cpp",
-              "RelativeDocumentMoniker": "source\\lexer.cpp",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\lexer.cpp",
-              "RelativeToolTip": "source\\lexer.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-05-19T14:48:48.142Z"
+              "WhenOpened": "2025-05-27T01:04:03.21Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "interpreter.cpp",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\interpreter.cpp",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\interpreter.cpp",
               "RelativeDocumentMoniker": "source\\interpreter.cpp",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\interpreter.cpp*",
-              "RelativeToolTip": "source\\interpreter.cpp*",
-              "ViewState": "AgIAAI8AAAAAAAAAAAAAwKIAAAAFAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\interpreter.cpp",
+              "RelativeToolTip": "source\\interpreter.cpp",
+              "ViewState": "AgIAAIkAAAAAAAAAAAAqwJkAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-05-19T14:48:47.542Z",
+              "WhenOpened": "2025-05-27T00:53:53.99Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "symbol_table.h",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\symbol_table.h",
-              "RelativeDocumentMoniker": "include\\symbol_table.h",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\symbol_table.h",
-              "RelativeToolTip": "include\\symbol_table.h",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAACAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-19T14:48:46.218Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "parser.h",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\parser.h",
-              "RelativeDocumentMoniker": "include\\parser.h",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\parser.h",
-              "RelativeToolTip": "include\\parser.h",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAQwDIAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-19T14:48:45.234Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "postfix.h",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\postfix.h",
-              "RelativeDocumentMoniker": "include\\postfix.h",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\postfix.h",
-              "RelativeToolTip": "include\\postfix.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAATAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-19T14:48:45.726Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 10,
-              "Title": "lexer.h",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\lexer.h",
-              "RelativeDocumentMoniker": "include\\lexer.h",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\lexer.h",
-              "RelativeToolTip": "include\\lexer.h",
-              "ViewState": "AgIAACoAAAAAAAAAAAAQwFIAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-19T14:48:44.685Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
               "Title": "interpreter.h",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\interpreter.h",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\interpreter.h",
               "RelativeDocumentMoniker": "include\\interpreter.h",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\interpreter.h",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\interpreter.h",
               "RelativeToolTip": "include\\interpreter.h",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAACgAAAB5AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-19T14:48:44.172Z"
+              "WhenOpened": "2025-05-27T00:53:51.621Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 6,
+              "Title": "lexer.cpp",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\lexer.cpp",
+              "RelativeDocumentMoniker": "source\\lexer.cpp",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\lexer.cpp",
+              "RelativeToolTip": "source\\lexer.cpp",
+              "ViewState": "AgIAAGEAAAAAAAAAAAAAAIUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-05-26T23:18:07.547Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "ast.h",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\ast.h",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\ast.h",
               "RelativeDocumentMoniker": "include\\ast.h",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\ast.h",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\ast.h",
               "RelativeToolTip": "include\\ast.h",
-              "ViewState": "AgIAABwAAAAAAAAAAAAQwCsAAAApAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEYAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-19T14:48:43.487Z"
+              "WhenOpened": "2025-05-26T22:09:56.63Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "type_checker.h",
-              "DocumentMoniker": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\type_checker.h",
-              "RelativeDocumentMoniker": "include\\type_checker.h",
-              "ToolTip": "D:\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\type_checker.h",
-              "RelativeToolTip": "include\\type_checker.h",
+              "DocumentIndex": 1,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\main.cpp",
+              "RelativeDocumentMoniker": "source\\main.cpp",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\main.cpp",
+              "RelativeToolTip": "source\\main.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-05-19T14:48:48.728Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "lexer.h",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\lexer.h",
+              "RelativeDocumentMoniker": "include\\lexer.h",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\lexer.h",
+              "RelativeToolTip": "include\\lexer.h",
+              "ViewState": "AgIAADEAAAAAAAAAAAAiwFIAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-05-19T14:47:10.44Z"
+              "WhenOpened": "2025-05-26T22:10:21.593Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "parser.h",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\parser.h",
+              "RelativeDocumentMoniker": "include\\parser.h",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\include\\parser.h",
+              "RelativeToolTip": "include\\parser.h",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAiwDAAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-05-26T22:09:14.656Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "parser.cpp",
+              "DocumentMoniker": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\parser.cpp",
+              "RelativeDocumentMoniker": "source\\parser.cpp",
+              "ToolTip": "C:\\Users\\users\\Documents\\GitHub\\lab2-pascal_execution_env\\pascal_minus_minus_ide\\source\\parser.cpp",
+              "RelativeToolTip": "source\\parser.cpp",
+              "ViewState": "AgIAALkBAAAAAAAAAAAiwNoBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-05-19T14:48:49.292Z"
             }
           ]
         }

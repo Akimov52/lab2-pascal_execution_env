@@ -10,61 +10,61 @@
 
 using namespace std;
 
-// Переносим определение TokenType в отдельное пространство имен
+// РџРµСЂРµРЅРѕСЃРёРј РѕРїСЂРµРґРµР»РµРЅРёРµ TokenType РІ РѕС‚РґРµР»СЊРЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РёРјРµРЅ
 namespace PascalToken {
-    // Перечисление всех возможных типов токенов для лексического анализа
+    // РџРµСЂРµС‡РёСЃР»РµРЅРёРµ РІСЃРµС… РІРѕР·РјРѕР¶РЅС‹С… С‚РёРїРѕРІ С‚РѕРєРµРЅРѕРІ РґР»СЏ Р»РµРєСЃРёС‡РµСЃРєРѕРіРѕ Р°РЅР°Р»РёР·Р°
     enum TokenType {
-        // Ключевые слова
+        // РљР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
         Program, Var, Const, Begin, End,
         If, Then, Else, While, Do,
         Read, Write, Readln, Writeln,
         Integer, Real, Boolean, StringType,
+        For, To, Downto,
         True, False,
-        Array, Of,
+        Array, Of, DotDot,
         Procedure, Function, Return,
 
-        // Операторы и разделители
+        // РћРїРµСЂР°С‚РѕСЂС‹ Рё СЂР°Р·РґРµР»РёС‚РµР»Рё
         Plus, Minus, Multiply, Divide,
         DivKeyword, Mod,
         Assign, Equal, NotEqual, Less, LessEqual, Greater, GreaterEqual,
         Semicolon, Colon, Comma, Dot, LParen, RParen, LBracket, RBracket,
         And, Or, Not,
 
-        // Литералы и идентификаторы
+        // Р›РёС‚РµСЂР°Р»С‹ Рё РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹
         Identifier, Number, String,
         RealLiteral, StringLiteral,
 
-        // Конец файла
+        // РљРѕРЅРµС† С„Р°Р№Р»Р°
         EndOfFile
     };
 }
 
-// Используем TokenType из пространства имен PascalToken
+// РСЃРїРѕР»СЊР·СѓРµРј TokenType РёР· РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІР° РёРјРµРЅ PascalToken
 using PascalToken::TokenType;
 
-// Структура токена, возвращаемого лексером
+// РЎС‚СЂСѓРєС‚СѓСЂР° С‚РѕРєРµРЅР°, РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р»РµРєСЃРµСЂРѕРј
 struct Token {
-    TokenType type;   // Тип токена (ключевое слово, оператор, идентификатор и т.д.)
-    string value;     // Значение токена (текст)
-    int line;         // Номер строки в исходном коде
-    int column;       // Позиция (столбец) в строке
+    TokenType type;   // РўРёРї С‚РѕРєРµРЅР° (РєР»СЋС‡РµРІРѕРµ СЃР»РѕРІРѕ, РѕРїРµСЂР°С‚РѕСЂ, РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Рё С‚.Рґ.)
+    string value;     // Р—РЅР°С‡РµРЅРёРµ С‚РѕРєРµРЅР° (С‚РµРєСЃС‚)
+    int line;         // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё РІ РёСЃС…РѕРґРЅРѕРј РєРѕРґРµ
+    int column;       // РџРѕР·РёС†РёСЏ (СЃС‚РѕР»Р±РµС†) РІ СЃС‚СЂРѕРєРµ
 
     Token();
     Token(TokenType t, const string& v, int l, int c);
 };
 
-// Класс лексического анализатора (лексера)
+// РљР»Р°СЃСЃ Р»РµРєСЃРёС‡РµСЃРєРѕРіРѕ Р°РЅР°Р»РёР·Р°С‚РѕСЂР° (Р»РµРєСЃРµСЂР°)
 class Lexer {
 private:
-    string source;        // Исходный текст программы
-    size_t position;      // Текущая позиция в строке
-    int line;             // Текущая строка
-    int column;           // Текущий столбец
+    string source;        // РСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚ РїСЂРѕРіСЂР°РјРјС‹
+    size_t position;      // РўРµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РІ СЃС‚СЂРѕРєРµ
+    int line;             // РўРµРєСѓС‰Р°СЏ СЃС‚СЂРѕРєР°
+    int column;           // РўРµРєСѓС‰РёР№ СЃС‚РѕР»Р±РµС†
 
-    // Вспомогательные методы для анализа текста
+    // Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ РјРµС‚РѕРґС‹ РґР»СЏ Р°РЅР°Р»РёР·Р° С‚РµРєСЃС‚Р°
     char current() const;
     char peek() const;
-    char peekNext() const;
     void advance();
     void skipWhitespace();
     void skipComment();
@@ -76,8 +76,8 @@ private:
     const unordered_map<string, TokenType>& getKeywords() const;
 
 public:
-    explicit Lexer(const string& source); // Конструктор принимает исходный текст
-    vector<Token> tokenize();             // Основной метод: разбить текст на токены
+    explicit Lexer(const string& source); // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїСЂРёРЅРёРјР°РµС‚ РёСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚
+    vector<Token> tokenize();             // РћСЃРЅРѕРІРЅРѕР№ РјРµС‚РѕРґ: СЂР°Р·Р±РёС‚СЊ С‚РµРєСЃС‚ РЅР° С‚РѕРєРµРЅС‹
 };
 
 #endif // LEXER_H

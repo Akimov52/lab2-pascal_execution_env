@@ -1,43 +1,45 @@
-#include "interpreter.h" // Заголовочный файл с описанием класса Interpreter и структуры Value
-#include <iostream>      // Для ввода/вывода
-#include <limits>        // Для numeric_limits, используемого в Readln
+
+#include "interpreter.h" // Р—Р°РіРѕР»РѕРІРѕС‡РЅС‹Р№ С„Р°Р№Р» СЃ РѕРїРёСЃР°РЅРёРµРј РєР»Р°СЃСЃР° Interpreter Рё СЃС‚СЂСѓРєС‚СѓСЂС‹ Value
+#include <iostream>      // Р”Р»СЏ РІРІРѕРґР°/РІС‹РІРѕРґР°
+#include <limits>        // Р”Р»СЏ numeric_limits, РёСЃРїРѕР»СЊР·СѓРµРјРѕРіРѕ РІ Readln
 #include <cmath>
 #include <algorithm>
 
-// ========================
-// Реализация конструкторов Value (универсального контейнера значений)
+// Р РµР°Р»РёР·Р°С†РёСЏ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂРѕРІ Value (СѓРЅРёРІРµСЂСЃР°Р»СЊРЅРѕРіРѕ РєРѕРЅС‚РµР№РЅРµСЂР° Р·РЅР°С‡РµРЅРёР№)
 // ========================
 
-// Конструктор по умолчанию: значение типа Integer, равное 0
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ: Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° Integer, СЂР°РІРЅРѕРµ 0
 Value::Value() : type(ValueType::Integer), intValue(0), realValue(0.0), boolValue(false), strValue("") {}
 
-// Конструктор для целого значения
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ С†РµР»РѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
 Value::Value(int v) : type(ValueType::Integer), intValue(v), realValue(0.0), boolValue(false), strValue("") {}
 
-// Конструктор для вещественного значения
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РІРµС‰РµСЃС‚РІРµРЅРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
 Value::Value(double v) : type(ValueType::Real), intValue(0), realValue(v), boolValue(false), strValue("") {}
 
-// Конструктор для булевого значения
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ Р±СѓР»РµРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
 Value::Value(bool v) : type(ValueType::Boolean), intValue(0), realValue(0.0), boolValue(v), strValue("") {}
 
-// Конструктор для строкового значения
-Value::Value(const string& v) : type(ValueType::String), intValue(0), realValue(0.0), boolValue(false), strValue(v) {}
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ СЃС‚СЂРѕРєРѕРІРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
+Value::Value(const std::string& v) : type(ValueType::String), intValue(0), realValue(0.0), boolValue(false), strValue(v) {}
+
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РјР°СЃСЃРёРІР°
+Value::Value(const std::vector<Value>& arr) : type(ValueType::Array), intValue(0), realValue(0.0), boolValue(false), strValue(""), arrayValue(arr) {}
 
 // ========================
-// Интерпретатор
+// РРЅС‚РµСЂРїСЂРµС‚Р°С‚РѕСЂ
 // ========================
 
-Interpreter::Interpreter() = default; // Конструктор по умолчанию
+Interpreter::Interpreter() = default; // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 
-// Запуск интерпретации программы
-void Interpreter::run(const shared_ptr<ASTNode>& root) {
+// Р—Р°РїСѓСЃРє РёРЅС‚РµСЂРїСЂРµС‚Р°С†РёРё РїСЂРѕРіСЂР°РјРјС‹
+void Interpreter::run(const std::shared_ptr<ASTNode>& root) {
     if (!root)
-        return; // Если узел пустой — ничего не делаем
+        return; // Р•СЃР»Рё СѓР·РµР» РїСѓСЃС‚РѕР№ вЂ” РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
     switch (root->type) {
     case ASTNodeType::ConstDecl: {
-        // root->value — имя константы; child[0] — её выражение
-        const string& name = root->value;
-        const string& typeName = root->children[0]->value;
+        const std::string& name = root->value;
+        const std::string& typeName = root->children[0]->value;
         Value val = evaluateExpression(root->children[1]);
         if (typeName == "real" || typeName == "double")
             symbols[name] = Value(val.realValue);
@@ -48,306 +50,405 @@ void Interpreter::run(const shared_ptr<ASTNode>& root) {
         else if (typeName == "string")
             symbols[name] = Value(val.strValue);
         else
-            throw runtime_error("Неизвестный тип константы: " + typeName);
+            throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї РєРѕРЅСЃС‚Р°РЅС‚С‹: " + typeName);
         break;
     }
     case ASTNodeType::VarDecl: {
-        const string& name = root->value;                  // root->value — имя переменной
-        const string& typeName = root->children[0]->value; // Тип лежит в первом дочернем узле
+        const std::string& name = root->value;
+        const std::string& typeName = root->children[0]->value;
         if (typeName == "real" || typeName == "double")
             symbols[name] = Value(0.0);
         else
             symbols[name] = Value(0);
         break;
     }
+    case ASTNodeType::ArrayDecl: {
+        const std::string& name = root->value;
+        // Р’ РїР°СЂСЃРµСЂРµ СЃС‚СЂСѓРєС‚СѓСЂР° СѓР·Р»Р° ArrayDecl:
+        // children[0] - РЅРёР¶РЅСЏСЏ РіСЂР°РЅРёС†Р°
+        // children[1] - РІРµСЂС…РЅСЏСЏ РіСЂР°РЅРёС†Р°
+        // children[2] - С‚РёРї СЌР»РµРјРµРЅС‚РѕРІ
+        Value lowerValue = evaluateExpression(root->children[0]);
+        Value upperValue = evaluateExpression(root->children[1]);
+        
+        int lowerBound, upperBound;
+        if (lowerValue.type == ValueType::Integer) {
+            lowerBound = lowerValue.intValue;
+        } else {
+            throw std::runtime_error("РќРёР¶РЅСЏСЏ РіСЂР°РЅРёС†Р° РјР°СЃСЃРёРІР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ С†РµР»С‹Рј С‡РёСЃР»РѕРј");
+        }
+        
+        if (upperValue.type == ValueType::Integer) {
+            upperBound = upperValue.intValue;
+        } else {
+            throw std::runtime_error("Р’РµСЂС…РЅСЏСЏ РіСЂР°РЅРёС†Р° РјР°СЃСЃРёРІР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ С†РµР»С‹Рј С‡РёСЃР»РѕРј");
+        }
+        const std::string& elemType = root->children[2]->value;
+        
+        int size = upperBound - lowerBound + 1;
+        if (size <= 0)
+            throw std::runtime_error("Р Р°Р·РјРµСЂ РјР°СЃСЃРёРІР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Рј");
+        
+        std::vector<Value> array(size);
+        if (elemType == "real" || elemType == "double") {
+            for (int i = 0; i < size; i++)
+                array[i] = Value(0.0);
+        } else if (elemType == "integer") {
+            for (int i = 0; i < size; i++)
+                array[i] = Value(0);
+        } else if (elemType == "boolean") {
+            for (int i = 0; i < size; i++)
+                array[i] = Value(false);
+        } else if (elemType == "string") {
+            for (int i = 0; i < size; i++)
+                array[i] = Value("");
+        } else {
+            throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї РјР°СЃСЃРёРІР°: " + elemType);
+        }
+        
+        symbols[name] = Value(array);
+        break;
+    }
     case ASTNodeType::Program:
     case ASTNodeType::Block:
     case ASTNodeType::ConstSection:
     case ASTNodeType::VarSection:
-        // Последовательно выполняем все подузлы (операторы)
         for (const auto& stmt : root->children)
             run(stmt);
         break;
     case ASTNodeType::Assignment:
-        executeAssignment(root); // Присваивание переменной
+        executeAssignment(root);
         break;
     case ASTNodeType::If:
-        executeIf(root); // Условный оператор
+        executeIf(root);
         break;
     case ASTNodeType::While:
-        executeWhile(root); // Цикл while
+        executeWhile(root);
+        break;
+    case ASTNodeType::ForLoop:
+        executeFor(root);
         break;
     case ASTNodeType::Write:
     case ASTNodeType::Writeln:
-        executeWrite(root); // Вывод
+        executeWrite(root);
         break;
     case ASTNodeType::Read:
     case ASTNodeType::Readln:
-        executeRead(root); // Ввод
+        executeRead(root);
         break;
-
     case ASTNodeType::ProcCall: {
-        // Процедурный вызов: возможно write/writeln/read/readln
-        const string& name = root->value;
-        if (name == "Writeln") {
-            // повторяем логику executeWrite + переход на новую строку
+        const std::string& name = root->value;
+        if (name == "Writeln" || name == "Write") {
             for (size_t i = 0; i < root->children.size(); ++i) {
                 Value val = evaluateExpression(root->children[i]);
                 switch (val.type) {
-                case ValueType::Integer:
-                    cout << val.intValue;
-                    break;
-                case ValueType::Real:
-                    cout << val.realValue;
-                    break;
-                case ValueType::Boolean:
-                    cout << (val.boolValue ? "true" : "false");
-                    break;
-                case ValueType::String:
-                    cout << val.strValue;
-                    break;
+                case ValueType::Integer: std::cout << val.intValue; break;
+                case ValueType::Real: std::cout << val.realValue; break;
+                case ValueType::Boolean: std::cout << (val.boolValue ? "true" : "false"); break;
+                case ValueType::String: std::cout << val.strValue; break;
                 }
-                if (i + 1 < root->children.size())
-                    cout << " ";
+                if (name == "Writeln")
+                    std::cout << std::endl;
             }
-            cout << endl;
-            break;
-        }
-        else if (name == "Write") {
-            // логика executeWrite без переноса строки
-            for (size_t i = 0; i < root->children.size(); ++i) {
-                Value val = evaluateExpression(root->children[i]);
-                switch (val.type) {
-                case ValueType::Integer:
-                    cout << val.intValue;
-                    break;
-                case ValueType::Real:
-                    cout << val.realValue;
-                    break;
-                case ValueType::Boolean:
-                    cout << (val.boolValue ? "true" : "false");
-                    break;
-                case ValueType::String:
-                    cout << val.strValue;
-                    break;
-                }
-                if (i + 1 < root->children.size())
-                    cout << " ";
-            }
-            break;
-        }
-        else if (name == "Read" || name == "Readln") {
-            // аналог executeRead/execureReadln
-            for (const auto& child : root->children) {
-                string varName = child->value;
-                if (getValueType(varName) == ValueType::Real) {
-                    double v;
-                    cin >> v;
-                    symbols[varName] = Value(v);
-                }
-                else {
-                    int v;
-                    cin >> v;
-                    symbols[varName] = Value(v);
-                }
-            }
-            if (name == "Readln")
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            break;
         }
         else
-            throw runtime_error("Неизвестная процедура: " + name);
+            throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅР°СЏ РїСЂРѕС†РµРґСѓСЂР°: " + name);
+        break;
     }
+    case ASTNodeType::Number:
+    case ASTNodeType::Real:
+    case ASTNodeType::Boolean:
+    case ASTNodeType::String:
+    case ASTNodeType::Identifier:
+    case ASTNodeType::ArrayAccess:
+    case ASTNodeType::BinOp:
+    case ASTNodeType::UnOp:
+        // Р­С‚Рё СѓР·Р»С‹ РѕР±С‹С‡РЅРѕ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РІ РІС‹СЂР°Р¶РµРЅРёСЏС…, РЅРѕ РµСЃР»Рё РІСЃС‚СЂРµС‚РёР»РёСЃСЊ Р·РґРµСЃСЊ вЂ” РЅРёС‡РµРіРѕ РЅРµ РґРµР»Р°РµРј
+        break;
+    case ASTNodeType::ProcedureDecl:
+    case ASTNodeType::FunctionDecl:
+    case ASTNodeType::Call:
+    case ASTNodeType::Return:
+    case ASTNodeType::Expression:
+    case ASTNodeType::DotDot:
+        // Р•СЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ, РґРѕР±Р°РІСЊС‚Рµ РѕР±СЂР°Р±РѕС‚РєСѓ СЌС‚РёС… СѓР·Р»РѕРІ Р·РґРµСЃСЊ
+        break;
     default:
-        throw runtime_error("Неизвестный оператор");
+        std::cerr << "РќРµРёР·РІРµСЃС‚РЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ С‚РёРїР°: " << static_cast<int>(root->type) << std::endl;
+        throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ");
     }
 }
 
-// Вычисление выражения
+
+// ===== Р РµР°Р»РёР·Р°С†РёСЏ executeFor =====
+// Р РµР°Р»РёР·Р°С†РёСЏ executeFor РєР°Рє РјРµС‚РѕРґР° РєР»Р°СЃСЃР° Interpreter
+void Interpreter::executeFor(const std::shared_ptr<ASTNode>& node) {
+    // node->value СЃРѕРґРµСЂР¶РёС‚ РёРјСЏ РїРµСЂРµРјРµРЅРЅРѕР№ Рё, РІРѕР·РјРѕР¶РЅРѕ, "|downto"
+    std::string varName = node->value;
+    bool isDownto = false;
+    size_t pipePos = varName.find('|');
+    if (pipePos != std::string::npos) {
+        isDownto = (varName.substr(pipePos + 1) == "downto");
+        varName = varName.substr(0, pipePos);
+    }
+
+        Value fromVal = this->evaluateExpression(node->children[0]);
+    Value toVal = this->evaluateExpression(node->children[1]);
+    auto& body = node->children[2];
+
+    Value oldValue;
+    bool varExists = (this->symbols.find(varName) != this->symbols.end());
+    if (varExists) {
+        oldValue = this->symbols[varName];
+    }
+
+    try {
+        this->symbols[varName] = fromVal;
+
+        if (isDownto) {
+            for (int i = fromVal.intValue; i >= toVal.intValue; --i) {
+                this->symbols[varName] = Value(i);
+                this->run(body);
+            }
+        } else {
+            for (int i = fromVal.intValue; i <= toVal.intValue; ++i) {
+                this->symbols[varName] = Value(i);
+                this->run(body);
+            }
+        }
+
+        if (varExists) {
+            this->symbols[varName] = oldValue;
+        } else {
+            this->symbols.erase(varName);
+        }
+    } catch (...) {
+        if (varExists) {
+            this->symbols[varName] = oldValue;
+        } else {
+            this->symbols.erase(varName);
+        }
+        throw;
+    }
+}
+
 Value Interpreter::evaluateExpression(const shared_ptr<ASTNode>& node) {
     switch (node->type) {
     case ASTNodeType::Number:
-        return Value(stoi(node->value)); // Преобразуем строку в число
+        return Value(stoi(node->value));
     case ASTNodeType::Real:
         return Value(stod(node->value));
     case ASTNodeType::Boolean:
         return Value(node->value == "true");
     case ASTNodeType::String:
-        return Value(node->value); // Просто строка
+        return Value(node->value);
     case ASTNodeType::Identifier: {
-        // Поиск переменной по имени
         auto it = symbols.find(node->value);
         if (it == symbols.end())
-            throw runtime_error("Неизвестная переменная: " + node->value);
+            throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ: " + node->value);
         return it->second;
     }
+    case ASTNodeType::ArrayAccess: {
+        std::string arrayName = node->value;
+        Value index = evaluateExpression(node->children[0]);
+        auto it = symbols.find(arrayName);
+        if (it == symbols.end())
+            throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РјР°СЃСЃРёРІ: " + arrayName);
+        if (it->second.type != ValueType::Array)
+            throw std::runtime_error("РћР¶РёРґР°Р»СЃСЏ РјР°СЃСЃРёРІ: " + arrayName);
+        if (index.type != ValueType::Integer)
+            throw std::runtime_error("РРЅРґРµРєСЃ РјР°СЃСЃРёРІР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С†РµР»С‹Рј С‡РёСЃР»РѕРј");
+        int idx = index.intValue;
+        if (idx < 0 || idx >= it->second.arrayValue.size())
+            throw std::runtime_error("РРЅРґРµРєСЃ РјР°СЃСЃРёРІР° РІРЅРµ РґРёР°РїР°Р·РѕРЅР°: " + std::to_string(idx));
+        return it->second.arrayValue[idx];
+    }
     case ASTNodeType::BinOp: {
-        // Бинарная операция: вычисляем левый и правый операнды
         Value left = evaluateExpression(node->children[0]);
         Value right = evaluateExpression(node->children[1]);
+        const std::string& op = node->value;
 
-        // Обработка различных операторов
-        if (node->value == "div") {
+        if (op == "div") {
             if (left.type != ValueType::Integer || right.type != ValueType::Integer)
-                throw runtime_error("Оператор div применим только к целым");
+                throw std::runtime_error("РћРїРµСЂР°С‚РѕСЂ div РїСЂРёРјРµРЅРёРј С‚РѕР»СЊРєРѕ Рє С†РµР»С‹Рј");
+            if (right.intValue == 0)
+                throw std::runtime_error("Р”РµР»РµРЅРёРµ РЅР° РЅРѕР»СЊ (div)");
             return Value(left.intValue / right.intValue);
         }
-        if (node->value == "mod") {
+        if (op == "mod") {
             if (left.type != ValueType::Integer || right.type != ValueType::Integer)
-                throw runtime_error("Оператор mod применим только к целым");
+                throw std::runtime_error("РћРїРµСЂР°С‚РѕСЂ mod РїСЂРёРјРµРЅРёРј С‚РѕР»СЊРєРѕ Рє С†РµР»С‹Рј");
+            if (right.intValue == 0)
+                throw std::runtime_error("Р”РµР»РµРЅРёРµ РЅР° РЅРѕР»СЊ (mod)");
             return Value(left.intValue % right.intValue);
         }
-        if (node->value == "+") {
-            if (left.type == ValueType::String || right.type == ValueType::String)
-                return Value(left.strValue + right.strValue); // Конкатенация строк
+        if (op == "+") {
+            if (left.type == ValueType::String || right.type == ValueType::String) {
+                std::string l = (left.type == ValueType::String) ? left.strValue : std::to_string(left.intValue);
+                std::string r = (right.type == ValueType::String) ? right.strValue : std::to_string(right.intValue);
+                return Value(l + r);
+            }
             if (left.type == ValueType::Real || right.type == ValueType::Real)
                 return Value(toReal(left) + toReal(right));
             return Value(left.intValue + right.intValue);
         }
-        if (node->value == "-") {
+        if (op == "-") {
             if (left.type == ValueType::Real || right.type == ValueType::Real)
                 return Value(toReal(left) - toReal(right));
             return Value(left.intValue - right.intValue);
         }
-        if (node->value == "*") {
+        if (op == "*") {
             if (left.type == ValueType::Real || right.type == ValueType::Real)
                 return Value(toReal(left) * toReal(right));
             return Value(left.intValue * right.intValue);
         }
-        if (node->value == "/") {
-            double l = (left.type == ValueType::Real) ? left.realValue : left.intValue;
-            double r = (right.type == ValueType::Real) ? right.realValue : right.intValue;
+        if (op == "/") {
+            double l = toReal(left), r = toReal(right);
             if (r == 0.0)
-                throw runtime_error("Деление на ноль");
+                throw std::runtime_error("Р”РµР»РµРЅРёРµ РЅР° РЅРѕР»СЊ");
             return Value(l / r);
         }
-
-        // Логические операции
-        if (node->value == "and")
+        if (op == "and") {
+            if (left.type != ValueType::Boolean || right.type != ValueType::Boolean)
+                throw std::runtime_error("РћРїРµСЂР°С‚РѕСЂ and РїСЂРёРјРµРЅРёРј С‚РѕР»СЊРєРѕ Рє Р±СѓР»РµРІС‹Рј Р·РЅР°С‡РµРЅРёСЏРј");
             return Value(left.boolValue && right.boolValue);
-        if (node->value == "or")
+        }
+        if (op == "or") {
+            if (left.type != ValueType::Boolean || right.type != ValueType::Boolean)
+                throw std::runtime_error("РћРїРµСЂР°С‚РѕСЂ or РїСЂРёРјРµРЅРёРј С‚РѕР»СЊРєРѕ Рє Р±СѓР»РµРІС‹Рј Р·РЅР°С‡РµРЅРёСЏРј");
             return Value(left.boolValue || right.boolValue);
+        }
+        if (op == "=") return Value(toReal(left) == toReal(right));
+        if (op == "<>") return Value(toReal(left) != toReal(right));
+        if (op == "<") return Value(toReal(left) < toReal(right));
+        if (op == "<=") return Value(toReal(left) <= toReal(right));
+        if (op == ">") return Value(toReal(left) > toReal(right));
+        if (op == ">=") return Value(toReal(left) >= toReal(right));
 
-        // Операторы сравнения
-        if (node->value == "=")
-            return Value(toReal(left) == toReal(right));
-        if (node->value == "<>")
-            return Value(toReal(left) != toReal(right));
-        if (node->value == "<")
-            return Value(toReal(left) < toReal(right));
-        if (node->value == "<=")
-            return Value(toReal(left) <= toReal(right));
-        if (node->value == ">")
-            return Value(toReal(left) > toReal(right));
-        if (node->value == ">=")
-            return Value(toReal(left) >= toReal(right));
-
-        throw runtime_error("Неизвестный бинарный оператор: " + node->value);
+        throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ Р±РёРЅР°СЂРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ: " + op);
     }
     case ASTNodeType::UnOp:
-        // Унарные операции
         if (node->value == "-") {
-            if (evaluateExpression(node->children[0]).type == ValueType::Real)
-                return Value(-evaluateExpression(node->children[0]).realValue);
-            else
-                return Value(-evaluateExpression(node->children[0]).intValue);
+            Value v = evaluateExpression(node->children[0]);
+            if (v.type == ValueType::Real) return Value(-v.realValue);
+            if (v.type == ValueType::Integer) return Value(-v.intValue);
+            throw std::runtime_error("РЈРЅР°СЂРЅС‹Р№ РјРёРЅСѓСЃ РїСЂРёРјРµРЅРёРј С‚РѕР»СЊРєРѕ Рє С‡РёСЃР»Р°Рј");
         }
-        if (node->value == "not")
-            return Value(!evaluateExpression(node->children[0]).boolValue);
-        throw runtime_error("Неизвестный унарный оператор: " + node->value);
+        if (node->value == "not") {
+            Value v = evaluateExpression(node->children[0]);
+            if (v.type != ValueType::Boolean)
+                throw std::runtime_error("РћРїРµСЂР°С‚РѕСЂ not РїСЂРёРјРµРЅРёРј С‚РѕР»СЊРєРѕ Рє Р±СѓР»РµРІС‹Рј Р·РЅР°С‡РµРЅРёСЏРј");
+            return Value(!v.boolValue);
+        }
+        throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ СѓРЅР°СЂРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ: " + node->value);
     default:
-        throw runtime_error("Ошибка вычисления выражения"); 
+        throw std::runtime_error(
+            "РћС€РёР±РєР° РІС‹С‡РёСЃР»РµРЅРёСЏ РІС‹СЂР°Р¶РµРЅРёСЏ. РўРёРї СѓР·Р»Р°: " +
+            std::to_string(static_cast<int>(node->type)) +
+            ", Р·РЅР°С‡РµРЅРёРµ: " + node->value
+        );
     }
 }
 
-// Обработка присваивания: имя переменной и значение
 void Interpreter::executeAssignment(const shared_ptr<ASTNode>& node) {
-    string varName = node->children[0]->value;              // Имя переменной
-    Value value = evaluateExpression(node->children[1]);    // Вычисляем выражение
-    symbols[varName] = value;                               // Сохраняем в таблицу символов
+    if (node->children[0]->type == ASTNodeType::ArrayAccess) {
+        // РџСЂРёСЃРІР°РёРІР°РЅРёРµ СЌР»РµРјРµРЅС‚Сѓ РјР°СЃСЃРёРІР°: arr[i] := value
+        std::string arrayName = node->children[0]->value;
+        Value index = evaluateExpression(node->children[0]->children[0]);
+        Value value = evaluateExpression(node->children[1]);
+        
+        auto it = symbols.find(arrayName);
+        if (it == symbols.end())
+            throw std::runtime_error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РјР°СЃСЃРёРІ: " + arrayName);
+        if (it->second.type != ValueType::Array)
+            throw std::runtime_error("РћР¶РёРґР°Р»СЃСЏ РјР°СЃСЃРёРІ: " + arrayName);
+        if (index.type != ValueType::Integer)
+            throw std::runtime_error("РРЅРґРµРєСЃ РјР°СЃСЃРёРІР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С†РµР»С‹Рј С‡РёСЃР»РѕРј");
+        int idx = index.intValue;
+        if (idx < 0 || idx >= it->second.arrayValue.size())
+            throw std::runtime_error("РРЅРґРµРєСЃ РјР°СЃСЃРёРІР° РІРЅРµ РґРёР°РїР°Р·РѕРЅР°: " + std::to_string(idx));
+        it->second.arrayValue[idx] = value;
+    } else {
+        // РћР±С‹С‡РЅРѕРµ РїСЂРёСЃРІР°РёРІР°РЅРёРµ РїРµСЂРµРјРµРЅРЅРѕР№
+        std::string varName = node->children[0]->value;
+        Value value = evaluateExpression(node->children[1]);
+        symbols[varName] = value;
+    }
 }
 
-// Условный оператор: if-then-else
 void Interpreter::executeIf(const shared_ptr<ASTNode>& node) {
-    Value cond = evaluateExpression(node->children[0]); // Условие
+    Value cond = evaluateExpression(node->children[0]);
     if (cond.boolValue)
-        run(node->children[1]);                         // then
+        run(node->children[1]);
     else if (node->children.size() > 2)
-        run(node->children[2]);                         // else
+        run(node->children[2]);
 }
 
-// Цикл while
 void Interpreter::executeWhile(const shared_ptr<ASTNode>& node) {
-    while (evaluateExpression(node->children[0]).boolValue) // Пока условие истинно
-        run(node->children[1]);                             // Выполняем тело цикла
+    while (evaluateExpression(node->children[0]).boolValue)
+        run(node->children[1]);
 }
 
-// Вывод значений (write/writeln)
 void Interpreter::executeWrite(const shared_ptr<ASTNode>& node) {
     for (size_t i = 0; i < node->children.size(); ++i) {
-        const auto& child = node->children[i];
-        Value val = evaluateExpression(child); // Вычисляем значение
+        Value val = evaluateExpression(node->children[i]);
         switch (val.type) {
-        case ValueType::Integer:
-            cout << val.intValue;
-            break;
-        case ValueType::Real:
-            cout << val.realValue;
-            break;
-        case ValueType::Boolean:
-            cout << (val.boolValue ? "true" : "false");
-            break;
-        case ValueType::String:
-            cout << val.strValue;
+        case ValueType::Integer: cout << val.intValue; break;
+        case ValueType::Real: cout << val.realValue; break;
+        case ValueType::Boolean: cout << (val.boolValue ? "true" : "false"); break;
+        case ValueType::String: cout << val.strValue; break;
+        case ValueType::Array:
+            cout << "[";
+            for (size_t j = 0; j < val.arrayValue.size(); ++j) {
+                switch (val.arrayValue[j].type) {
+                case ValueType::Integer: cout << val.arrayValue[j].intValue; break;
+                case ValueType::Real: cout << val.arrayValue[j].realValue; break;
+                case ValueType::Boolean: cout << (val.arrayValue[j].boolValue ? "true" : "false"); break;
+                case ValueType::String: cout << val.arrayValue[j].strValue; break;
+                case ValueType::Array: cout << "[Array]"; break;
+                }
+                if (j + 1 < val.arrayValue.size()) cout << ", ";
+            }
+            cout << "]";
             break;
         }
-        if (i + 1 < node->children.size())
-            cout << " "; // Пробел между значениями
+        if (i + 1 < node->children.size()) cout << " ";
     }
-    if (node->type == ASTNodeType::Writeln)
-        cout << endl; // Перевод строки для writeln
+    if (node->type == ASTNodeType::Writeln) cout << endl;
 }
 
-// Ввод значений (read/readln)
 void Interpreter::executeRead(const shared_ptr<ASTNode>& node) {
     for (const auto& child : node->children) {
-        string varName = child->value;   // Имя переменной
-        // Определяем, целая или вещественная переменная
+        string varName = child->value;
         if (getValueType(varName) == ValueType::Real) {
-            double v;
-            cin >> v;
+            double v; cin >> v;
             symbols[varName] = Value(v);
         }
         else {
-            int v;
-            cin >> v;
+            int v; cin >> v;
             symbols[varName] = Value(v);
         }
-        if (node->type == ASTNodeType::Readln)
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Игнорируем остаток строки
     }
+    if (node->type == ASTNodeType::Readln)
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
 }
 
-// Получение значения переменной по имени (используется для тестов или отладки)
 int Interpreter::getVarValue(const string& name) const {
     auto it = symbols.find(name);
     if (it == symbols.end())
-        throw runtime_error("Переменная не найдена: " + name);
+        throw runtime_error("РџРµСЂРµРјРµРЅРЅР°СЏ РЅРµ РЅР°Р№РґРµРЅР°: " + name);
     return it->second.intValue;
 }
 
-// Получаем тип переменной из symbols
 ValueType Interpreter::getValueType(const string& name) const {
     auto it = symbols.find(name);
     if (it == symbols.end())
-        throw runtime_error("Переменная не найдена: " + name);
+        throw runtime_error("РџРµСЂРµРјРµРЅРЅР°СЏ РЅРµ РЅР°Р№РґРµРЅР°: " + name);
     return it->second.type;
 }
 
 double Interpreter::toReal(const Value& v) const {
-    if (v.type == ValueType::Real)
-        return v.realValue;
-    if (v.type == ValueType::Integer)
-        return static_cast<double>(v.intValue);
-    throw runtime_error("Ожидалось числовое значение");
+    if (v.type == ValueType::Real) return v.realValue;
+    if (v.type == ValueType::Integer) return static_cast<double>(v.intValue);
+    throw runtime_error("РћР¶РёРґР°Р»РѕСЃСЊ С‡РёСЃР»РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ");
 }

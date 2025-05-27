@@ -2,6 +2,7 @@
 #define PARSER_H
 
 #include "ast.h"
+#include "lexer.h"
 
 // Класс синтаксического анализатора (парсера)
 class Parser {
@@ -40,12 +41,9 @@ private:
     shared_ptr<ASTNode> parseFactor();           // Факторы (числа, идентификаторы, скобки)
     shared_ptr<ASTNode> parseVarSection();       // var ... ;
     shared_ptr<ASTNode> parseConstSection();     // const ... ;
-    shared_ptr<ASTNode> parseArrayDecl();        // Объявление массива
-    shared_ptr<ASTNode> parseProcedureDecl();    // Объявление процедуры
-    shared_ptr<ASTNode> parseFunctionDecl();     // Объявление функции
-    shared_ptr<ASTNode> parseCall();             // Вызов функции/процедуры
-    shared_ptr<ASTNode> parseReturn();           // Оператор return
     shared_ptr<ASTNode> parseProcedureCall();    // Вызов процедуры
+    shared_ptr<ASTNode> parseFor();              // for ... to ... do ...
+
 };
 
 #endif // PARSER_H

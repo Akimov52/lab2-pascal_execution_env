@@ -2,42 +2,44 @@
 
 #include "ast.h"
 #include <map>
+#include <vector>
+#include <string>
 
-enum class ValueType { Integer, Real, Boolean, String };
+enum class ValueType { Integer, Real, Boolean, String, Array };
 
-// Универсальный контейнер для значений
+// РЈРЅРёРІРµСЂСЃР°Р»СЊРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ Р·РЅР°С‡РµРЅРёР№
 struct Value {
     ValueType type;
     int intValue;
     double realValue;
     bool boolValue;
-    string strValue;
+    std::string strValue;
+    std::vector<Value> arrayValue;  // РџРѕР»Рµ РґР»СЏ РјР°СЃСЃРёРІР°
 
     Value();
     explicit Value(int v);
     explicit Value(double v);
     explicit Value(bool v);
-    explicit Value(const string& v);
+    explicit Value(const std::string& v);
+    explicit Value(const std::vector<Value>& arr);  // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґР»СЏ РјР°СЃСЃРёРІР°
 };
 
 class Interpreter {
 public:
     Interpreter();
-
-    void run(const shared_ptr<ASTNode>& root);
-    int getVarValue(const string& name) const;
-    const map<string, Value>& getAllSymbols() const { return symbols; }
+    void run(const std::shared_ptr<ASTNode>& root);
+    void executeFor(const std::shared_ptr<ASTNode>& node);
+    int getVarValue(const std::string& name) const;
+    const std::map<std::string, Value>& getAllSymbols() const { return symbols; }
 
 private:
-    map<string, Value> symbols;
-
-    void executeAssignment(const shared_ptr<ASTNode>& node);
-    void executeIf(const shared_ptr<ASTNode>& node);
-    void executeWhile(const shared_ptr<ASTNode>& node);
-    void executeWrite(const shared_ptr<ASTNode>& node);
-    void executeRead(const shared_ptr<ASTNode>& node);
-
-    Value evaluateExpression(const shared_ptr<ASTNode>& node);
-    ValueType getValueType(const string& name) const; // Помощник: вернуть тип переменной или бросить, если нет в таблице
+    std::map<std::string, Value> symbols;
+    void executeAssignment(const std::shared_ptr<ASTNode>& node);
+    void executeIf(const std::shared_ptr<ASTNode>& node);
+    void executeWhile(const std::shared_ptr<ASTNode>& node);
+    void executeWrite(const std::shared_ptr<ASTNode>& node);
+    void executeRead(const std::shared_ptr<ASTNode>& node);
+    Value evaluateExpression(const std::shared_ptr<ASTNode>& node);
+    ValueType getValueType(const std::string& name) const;
     double toReal(const Value& v) const;
 };

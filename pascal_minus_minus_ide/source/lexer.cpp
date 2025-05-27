@@ -1,40 +1,40 @@
 #include "lexer.h"
 
-// Конструктор по умолчанию для токена: устанавливает тип EndOfFile и пустые значения
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ С‚РѕРєРµРЅР°: СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С‚РёРї EndOfFile Рё РїСѓСЃС‚С‹Рµ Р·РЅР°С‡РµРЅРёСЏ
 Token::Token() : type(TokenType::EndOfFile), value(""), line(0), column(0) {}
 
-// Конструктор токена с параметрами: тип, значение, строка и столбец
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ С‚РѕРєРµРЅР° СЃ РїР°СЂР°РјРµС‚СЂР°РјРё: С‚РёРї, Р·РЅР°С‡РµРЅРёРµ, СЃС‚СЂРѕРєР° Рё СЃС‚РѕР»Р±РµС†
 Token::Token(TokenType t, const string& v, int l, int c) : type(t), value(v), line(l), column(c) {}
 
-// Проверка: является ли символ латинской или кириллической буквой (Windows-1251)
+// РџСЂРѕРІРµСЂРєР°: СЏРІР»СЏРµС‚СЃСЏ Р»Рё СЃРёРјРІРѕР» Р»Р°С‚РёРЅСЃРєРѕР№ РёР»Рё РєРёСЂРёР»Р»РёС‡РµСЃРєРѕР№ Р±СѓРєРІРѕР№ (Windows-1251)
 bool isAlphaCyrillic(unsigned char c) {
-    // Латиница
+    // Р›Р°С‚РёРЅРёС†Р°
     if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
         return true;
-    // Кириллица (Windows-1251: А-Я 0xC0-0xDF, а-я 0xE0-0xFF, Ё 0xA8, ё 0xB8)
+    // РљРёСЂРёР»Р»РёС†Р° (Windows-1251: Рђ-РЇ 0xC0-0xDF, Р°-СЏ 0xE0-0xFF, РЃ 0xA8, С‘ 0xB8)
     if ((c >= 0xC0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xFF) || c == 0xA8 || c == 0xB8)
         return true;
     return false;
 }
 
-// Конструктор лексера: принимает исходный текст программы
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р»РµРєСЃРµСЂР°: РїСЂРёРЅРёРјР°РµС‚ РёСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚ РїСЂРѕРіСЂР°РјРјС‹
 Lexer::Lexer(const string& source) : source(source), position(0), line(1), column(1) {}
 
-// Получить текущий символ
+// РџРѕР»СѓС‡РёС‚СЊ С‚РµРєСѓС‰РёР№ СЃРёРјРІРѕР»
 char Lexer::current() const {
     if (position >= source.length())
         return '\0';
     return source[position];
 }
 
-// Посмотреть следующий символ (без продвижения позиции)
+// РџРѕСЃРјРѕС‚СЂРµС‚СЊ СЃР»РµРґСѓСЋС‰РёР№ СЃРёРјРІРѕР» (Р±РµР· РїСЂРѕРґРІРёР¶РµРЅРёСЏ РїРѕР·РёС†РёРё)
 char Lexer::peek() const {
     if (position + 1 >= source.length())
         return '\0';
     return source[position + 1];
 }
 
-// Продвинуть позицию на один символ, обновить строку и столбец
+// РџСЂРѕРґРІРёРЅСѓС‚СЊ РїРѕР·РёС†РёСЋ РЅР° РѕРґРёРЅ СЃРёРјРІРѕР», РѕР±РЅРѕРІРёС‚СЊ СЃС‚СЂРѕРєСѓ Рё СЃС‚РѕР»Р±РµС†
 void Lexer::advance() {
     if (position < source.length()) {
         if (source[position] == '\n') {
@@ -47,13 +47,13 @@ void Lexer::advance() {
     }
 }
 
-// Пропустить все пробельные символы
+// РџСЂРѕРїСѓСЃС‚РёС‚СЊ РІСЃРµ РїСЂРѕР±РµР»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹
 void Lexer::skipWhitespace() {
     while (isspace((unsigned char)current()))
         advance();
 }
 
-// Пропустить комментарий (Pascal: { ... } или (* ... *))
+// РџСЂРѕРїСѓСЃС‚РёС‚СЊ РєРѕРјРјРµРЅС‚Р°СЂРёР№ (Pascal: { ... } РёР»Рё (* ... *))
 void Lexer::skipComment() {
     if (current() == '{') {
         advance();
@@ -81,7 +81,7 @@ void Lexer::skipComment() {
     }
 }
 
-// Проверить, совпадает ли текущий символ с ожидаемым, и продвинуться, если да
+// РџСЂРѕРІРµСЂРёС‚СЊ, СЃРѕРІРїР°РґР°РµС‚ Р»Рё С‚РµРєСѓС‰РёР№ СЃРёРјРІРѕР» СЃ РѕР¶РёРґР°РµРјС‹Рј, Рё РїСЂРѕРґРІРёРЅСѓС‚СЊСЃСЏ, РµСЃР»Рё РґР°
 bool Lexer::match(char expected) {
     if (current() == expected) {
         advance();
@@ -90,12 +90,12 @@ bool Lexer::match(char expected) {
     return false;
 }
 
-// Создать токен с указанным типом и значением
+// РЎРѕР·РґР°С‚СЊ С‚РѕРєРµРЅ СЃ СѓРєР°Р·Р°РЅРЅС‹Рј С‚РёРїРѕРј Рё Р·РЅР°С‡РµРЅРёРµРј
 Token Lexer::makeToken(TokenType type, const string& value) {
     return Token(type, value, line, column);
 }
 
-// Получить таблицу ключевых слов Pascal
+// РџРѕР»СѓС‡РёС‚СЊ С‚Р°Р±Р»РёС†Сѓ РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ Pascal
 const unordered_map<string, TokenType>& Lexer::getKeywords() const {
     static unordered_map<string, TokenType> keywords = {
         {"program", TokenType::Program},
@@ -108,10 +108,10 @@ const unordered_map<string, TokenType>& Lexer::getKeywords() const {
         {"else", TokenType::Else},
         {"while", TokenType::While},
         {"do", TokenType::Do},
-        {"Read", TokenType::Read},
-        {"Write", TokenType::Write},
-        {"Readln", TokenType::Readln},
-        {"Writeln", TokenType::Writeln},
+        {"read", TokenType::Read},
+        {"write", TokenType::Write},
+        {"readln", TokenType::Readln},
+        {"writeln", TokenType::Writeln},
         {"integer", TokenType::Integer},
         {"real", TokenType::Real},
         {"boolean", TokenType::Boolean},
@@ -127,13 +127,17 @@ const unordered_map<string, TokenType>& Lexer::getKeywords() const {
         {"mod", TokenType::Mod},
         {"and", TokenType::And},
         {"or", TokenType::Or},
-        {"not", TokenType::Not}
+        {"not", TokenType::Not},
+        {"for", TokenType::For},
+        {"to", TokenType::To},
+        {"downto", TokenType::Downto},
+
     };
     return keywords;
 }
 
 
-// Прочитать число (целое или вещественное)
+// РџСЂРѕС‡РёС‚Р°С‚СЊ С‡РёСЃР»Рѕ (С†РµР»РѕРµ РёР»Рё РІРµС‰РµСЃС‚РІРµРЅРЅРѕРµ)
 Token Lexer::readNumber() {
     string num;
     bool isReal = false;
@@ -160,7 +164,7 @@ Token Lexer::readNumber() {
         : makeToken(TokenType::Number, num);
 }
 
-// Прочитать идентификатор или ключевое слово
+// РџСЂРѕС‡РёС‚Р°С‚СЊ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР»Рё РєР»СЋС‡РµРІРѕРµ СЃР»РѕРІРѕ
 Token Lexer::readIdentifierOrKeyword() {
     string text;
     int startCol = column;
@@ -178,25 +182,25 @@ Token Lexer::readIdentifierOrKeyword() {
     return makeToken(TokenType::Identifier, text);
 }
 
-// Прочитать строковый литерал (в одинарных или двойных кавычках)
+// РџСЂРѕС‡РёС‚Р°С‚СЊ СЃС‚СЂРѕРєРѕРІС‹Р№ Р»РёС‚РµСЂР°Р» (РІ РѕРґРёРЅР°СЂРЅС‹С… РёР»Рё РґРІРѕР№РЅС‹С… РєР°РІС‹С‡РєР°С…)
 Token Lexer::readString() {
     string str;
     int startCol = column;
-    char quote = current(); // Открывающая кавычка (' или ")
-    advance(); // Пропустить открывающую кавычку
+    char quote = current(); // РћС‚РєСЂС‹РІР°СЋС‰Р°СЏ РєР°РІС‹С‡РєР° (' РёР»Рё ")
+    advance(); // РџСЂРѕРїСѓСЃС‚РёС‚СЊ РѕС‚РєСЂС‹РІР°СЋС‰СѓСЋ РєР°РІС‹С‡РєСѓ
 
     while (current() != quote && current() != '\0') {
         if (current() == '\\') {
-            advance(); // Пропустить обратный слэш
+            advance(); // РџСЂРѕРїСѓСЃС‚РёС‚СЊ РѕР±СЂР°С‚РЅС‹Р№ СЃР»СЌС€
             if (current() == '\0')
                 break;
-            // Обработка escape-последовательностей
+            // РћР±СЂР°Р±РѕС‚РєР° escape-РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№
             if (current() == 'n')
                 str += '\n';
             else if (current() == 't')
                 str += '\t';
             else
-                str += current(); // Просто добавить символ как есть
+                str += current(); // РџСЂРѕСЃС‚Рѕ РґРѕР±Р°РІРёС‚СЊ СЃРёРјРІРѕР» РєР°Рє РµСЃС‚СЊ
             advance();
         }
         else {
@@ -206,20 +210,27 @@ Token Lexer::readString() {
     }
 
     if (current() == quote) {
-        advance(); // Пропустить закрывающую кавычку
+        advance(); // РџСЂРѕРїСѓСЃС‚РёС‚СЊ Р·Р°РєСЂС‹РІР°СЋС‰СѓСЋ РєР°РІС‹С‡РєСѓ
         return makeToken(TokenType::StringLiteral, str);
     }
 
     throw runtime_error("Unterminated string literal");
 }
 
-// Основной метод: разбить исходный текст на токены
+// РћСЃРЅРѕРІРЅРѕР№ РјРµС‚РѕРґ: СЂР°Р·Р±РёС‚СЊ РёСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚ РЅР° С‚РѕРєРµРЅС‹
 vector<Token> Lexer::tokenize() {
     vector<Token> tokens;
 
     while (current() != '\0') {
         skipWhitespace();
         skipComment();
+
+        if (current() == '.' && peek() == '.') {
+            advance(); advance();
+            tokens.push_back(makeToken(TokenType::DotDot, ".."));
+            continue;
+        }
+
 
         char c = current();
         if (c == '\0')

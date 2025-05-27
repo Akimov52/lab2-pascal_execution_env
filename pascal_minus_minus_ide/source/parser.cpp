@@ -1,16 +1,18 @@
 #include "parser.h"
+#include "lexer.h"
+using PascalToken::TokenType;
+#include <iostream>
+using namespace std;
 
-// Конструктор парсера: принимает список токенов для разбора
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїР°СЂСЃРµСЂР°
 Parser::Parser(const vector<Token>& tokens) : tokens(tokens), pos(0) {}
 
-// Получить текущий токен. Если вышли за пределы — выбрасываем ошибку.
 const Token& Parser::current() const {
     if (pos >= tokens.size())
-        throw runtime_error("Неожиданный конец входных данных");
+        throw runtime_error("РќРµРѕР¶РёРґР°РЅРЅС‹Р№ РєРѕРЅРµС† РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С…");
     return tokens[pos];
 }
 
-// Проверить, совпадает ли текущий токен с ожидаемым типом. Если да — перейти к следующему.
 bool Parser::match(TokenType type) {
     if (current().type == type) {
         pos++;
@@ -19,66 +21,126 @@ bool Parser::match(TokenType type) {
     return false;
 }
 
-// Ожидать токен определённого типа. Если не совпадает — выбросить ошибку с сообщением.
 void Parser::expect(TokenType type, const string& errorMsg) {
     if (!match(type)) {
         int errLine = current().line;
         int errCol = current().column;
-        throw runtime_error(errorMsg + " в " + to_string(errLine) + " строчке, " + to_string(errCol) + " позиции");
+        throw runtime_error(errorMsg + " РІ " + to_string(errLine) + " СЃС‚СЂРѕС‡РєРµ, " + to_string(errCol) + " РїРѕР·РёС†РёРё");
     }
 }
 
-// Главная точка входа — разобрать всю программу
 shared_ptr<ASTNode> Parser::parse() {
     return parseProgram();
 }
 
-// Разбор основной структуры программы: program <id>; ... .
 shared_ptr<ASTNode> Parser::parseProgram() {
-    expect(TokenType::Program, "Ожидалось ключевое слово 'program'");
+    expect(TokenType::Program, "РћР¶РёРґР°Р»РѕСЃСЊ РєР»СЋС‡РµРІРѕРµ СЃР»РѕРІРѕ 'program'");
     auto prog = make_shared<ASTNode>(ASTNodeType::Program);
-    expect(TokenType::Identifier, "Ожидалось имя программы");
-    expect(TokenType::Semicolon, "Ожидалась точка с запятой после имени программы");
+    expect(TokenType::Identifier, "РћР¶РёРґР°Р»РѕСЃСЊ РёРјСЏ РїСЂРѕРіСЂР°РјРјС‹");
+    expect(TokenType::Semicolon, "РћР¶РёРґР°Р»Р°СЃСЊ С‚РѕС‡РєР° СЃ Р·Р°РїСЏС‚РѕР№ РїРѕСЃР»Рµ РёРјРµРЅРё РїСЂРѕРіСЂР°РјРјС‹");
     prog->children.push_back(parseBlock());
-    expect(TokenType::Dot, "Ожидалась точка в конце программы");
+    expect(TokenType::Dot, "РћР¶РёРґР°Р»Р°СЃСЊ С‚РѕС‡РєР° РІ РєРѕРЅС†Рµ РїСЂРѕРіСЂР°РјРјС‹");
     return prog;
 }
 
-// Разбор блока: секции const, var и основной begin ... end
 shared_ptr<ASTNode> Parser::parseBlock() {
     auto block = make_shared<ASTNode>(ASTNodeType::Block);
-
-    // Обработка секции const
     if (current().type == TokenType::Const)
         block->children.push_back(parseConstSection());
-    // Обработка секции var (теперь опционально)
     if (current().type == TokenType::Var)
         block->children.push_back(parseVarSection());
-    expect(TokenType::Begin, "Ожидалось 'begin'");
-    while (!match(TokenType::End)) {
-        block->children.push_back(parseStatement());
-        match(TokenType::Semicolon); // точка с запятой между операторами опциональна после последнего
+    expect(TokenType::Begin, "РћР¶РёРґР°Р»РѕСЃСЊ 'begin'");
+    while (current().type != TokenType::End &&
+        current().type != TokenType::Dot &&
+        current().type != TokenType::EndOfFile) {
+        auto stmt = parseStatement();
+        if (stmt != nullptr) {
+            block->children.push_back(stmt);
+            cout << "Р”РѕР±Р°РІР»РµРЅ РѕРїРµСЂР°С‚РѕСЂ С‚РёРїР° " << static_cast<int>(stmt->type) << endl;
+        }
+        match(TokenType::Semicolon);
     }
+    expect(TokenType::End, "РћР¶РёРґР°Р»РѕСЃСЊ 'end'");
     return block;
 }
 
-// Разбор секции констант
+shared_ptr<ASTNode> Parser::parseStatement() {
+    cout << ">> parseStatement: " << current().value << " (" << static_cast<int>(current().type) << ")" << endl;
+    if (current().type == TokenType::End ||
+        current().type == TokenType::Dot ||
+        current().type == TokenType::EndOfFile) {
+        return nullptr;
+    }
+    if (current().type == TokenType::Begin)
+        return parseBlock();
+    if (current().type == TokenType::Writeln)
+        return parseWriteln();
+    if (current().type == TokenType::Write)
+        return parseWrite();
+    if (current().type == TokenType::Readln)
+        return parseReadln();
+    if (current().type == TokenType::Read)
+        return parseRead();
+    if (current().type == TokenType::If)
+        return parseIf();
+    if (current().type == TokenType::While)
+        return parseWhile();
+    if (current().type == TokenType::For)
+        return parseFor();
+    if (current().type == TokenType::Identifier) {
+        size_t savedPos = pos;
+        string id = current().value;
+        pos++;
+        if (pos < tokens.size() && tokens[pos].type == TokenType::LBracket) {
+            size_t bracketPos = pos;
+            int depth = 1;
+            pos++;
+            while (pos < tokens.size() && depth > 0) {
+                if (tokens[pos].type == TokenType::LBracket) depth++;
+                else if (tokens[pos].type == TokenType::RBracket) depth--;
+                pos++;
+            }
+            if (depth == 0 && pos < tokens.size() && tokens[pos].type == TokenType::Assign) {
+                pos = savedPos;
+                return parseAssignment();
+            }
+            pos = savedPos;
+        }
+        if (pos < tokens.size() && tokens[pos].type == TokenType::Assign) {
+            pos = savedPos;
+            return parseAssignment();
+        }
+        if (pos < tokens.size() && tokens[pos].type == TokenType::LParen) {
+            pos = savedPos;
+            return parseProcedureCall();
+        }
+        throw runtime_error("РћР¶РёРґР°Р»РѕСЃСЊ ':=' РёР»Рё '(' РёР»Рё '[...]' РїРѕСЃР»Рµ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР° '" + id + "'");
+    }
+    cerr << "РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РѕРєРµРЅ РІ parseStatement: type=" << static_cast<int>(current().type) << " value=" << current().value << endl;
+    throw runtime_error("РќРµРёР·РІРµСЃС‚РЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ РІ " + to_string(current().line) + " СЃС‚СЂРѕС‡РєРµ");
+}
+
+
+
+
+
+// Р Р°Р·Р±РѕСЂ СЃРµРєС†РёРё РєРѕРЅСЃС‚Р°РЅС‚
 shared_ptr<ASTNode> Parser::parseConstSection() {
-    expect(TokenType::Const, "Ожидалось 'const'");
+    expect(TokenType::Const, "РћР¶РёРґР°Р»РѕСЃСЊ 'const'");
     auto section = make_shared<ASTNode>(ASTNodeType::ConstSection);
     while (current().type == TokenType::Identifier) {
         string name = current().value;
-        expect(TokenType::Identifier, "Ожидался идентификатор");
+        expect(TokenType::Identifier, "РћР¶РёРґР°Р»СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ");
         string typeName;
         if (match(TokenType::Colon)) {
-            expect(TokenType::Identifier, "Ожидался тип константы");
+            expect(TokenType::Identifier, "РћР¶РёРґР°Р»СЃСЏ С‚РёРї РєРѕРЅСЃС‚Р°РЅС‚С‹");
             typeName = tokens[pos - 1].value;
         }
         else
-            throw runtime_error("Нужен тип для константы " + name);
-        expect(TokenType::Equal, "Ожидался '='");
+            throw runtime_error("РќСѓР¶РµРЅ С‚РёРї РґР»СЏ РєРѕРЅСЃС‚Р°РЅС‚С‹ " + name);
+        expect(TokenType::Equal, "РћР¶РёРґР°Р»СЃСЏ '='");
         auto value = parseExpression();
-        expect(TokenType::Semicolon, "Ожидалась ';'");
+        expect(TokenType::Semicolon, "РћР¶РёРґР°Р»Р°СЃСЊ ';'");
         auto decl = make_shared<ASTNode>(ASTNodeType::ConstDecl, name);
         decl->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, typeName));
         decl->children.push_back(value);
@@ -87,35 +149,70 @@ shared_ptr<ASTNode> Parser::parseConstSection() {
     return section;
 }
 
-// Разбор секции переменных: var x, y: integer;
+// Р Р°Р·Р±РѕСЂ СЃРµРєС†РёРё РїРµСЂРµРјРµРЅРЅС‹С…: var x, y: integer;
 shared_ptr<ASTNode> Parser::parseVarSection() {
-    expect(TokenType::Var, "Ожидалось 'var'");
+    expect(TokenType::Var, "РћР¶РёРґР°Р»РѕСЃСЊ 'var'");
     auto section = make_shared<ASTNode>(ASTNodeType::VarSection);
     while (current().type == TokenType::Identifier) {
-        // Собираем имена переменных через запятую
+        // РЎРѕР±РёСЂР°РµРј РёРјРµРЅР° РїРµСЂРµРјРµРЅРЅС‹С… С‡РµСЂРµР· Р·Р°РїСЏС‚СѓСЋ
         vector<string> names;
         names.push_back(current().value);
-        expect(TokenType::Identifier, "Ожидался идентификатор");
+        expect(TokenType::Identifier, "РћР¶РёРґР°Р»СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ");
         while (match(TokenType::Comma)) {
-            expect(TokenType::Identifier, "Ожидался идентификатор после запятой");
+            expect(TokenType::Identifier, "РћР¶РёРґР°Р»СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЃР»Рµ Р·Р°РїСЏС‚РѕР№");
             names.push_back(tokens[pos - 1].value);
         }
-        expect(TokenType::Colon, "Ожидалось ':' после списка имён");
+        expect(TokenType::Colon, "РћР¶РёРґР°Р»РѕСЃСЊ ':' РїРѕСЃР»Рµ СЃРїРёСЃРєР° РёРјС‘РЅ");
         string typeName;
         switch (current().type) {
+        case TokenType::Array: {
+    expect(TokenType::Array, "РћР¶РёРґР°Р»РѕСЃСЊ 'array'");
+    expect(TokenType::LBracket, "РћР¶РёРґР°Р»РѕСЃСЊ '[' РїРѕСЃР»Рµ 'array'");
+    auto lower = parseExpression();
+    expect(TokenType::Dot, "РћР¶РёРґР°Р»РѕСЃСЊ '..'");
+    auto upper = parseExpression();
+    expect(TokenType::RBracket, "РћР¶РёРґР°Р»РѕСЃСЊ ']'");
+
+    expect(TokenType::Of, "РћР¶РёРґР°Р»РѕСЃСЊ 'of'");
+    string elemType;
+    switch (current().type) {
+        case TokenType::Integer:
+        case TokenType::Real:
+        case TokenType::Boolean:
+        case TokenType::StringType:
+            elemType = current().value;
+            pos++;
+            break;
+        default:
+            throw runtime_error("РћР¶РёРґР°Р»СЃСЏ Р±Р°Р·РѕРІС‹Р№ С‚РёРї РјР°СЃСЃРёРІР°");
+    }
+
+    typeName = "array"; // Р»РѕРіРёС‡РµСЃРєР°СЏ РјРµС‚РєР°
+    for (const auto& name : names) {
+        auto decl = make_shared<ASTNode>(ASTNodeType::ArrayDecl, name);
+        decl->children.push_back(lower);
+        decl->children.push_back(upper);
+        decl->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, elemType));
+        section->children.push_back(decl);
+    }
+
+    expect(TokenType::Semicolon, "РћР¶РёРґР°Р»Р°СЃСЊ ';'");
+    continue; // РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј СЃР»РµРґСѓСЋС‰РёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
+}
+
         case TokenType::Identifier:
         case TokenType::Integer:
         case TokenType::Real:
         case TokenType::Boolean:
         case TokenType::StringType:
             typeName = current().value;
-            pos++;  // съели токен типа
+            pos++;  // СЃСЉРµР»Рё С‚РѕРєРµРЅ С‚РёРїР°
             break;
         default:
-            throw runtime_error("Ожидался тип переменной в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
+            throw runtime_error("РћР¶РёРґР°Р»СЃСЏ С‚РёРї РїРµСЂРµРјРµРЅРЅРѕР№ РІ " + to_string(current().line) + " СЃС‚СЂРѕС‡РєРµ, " + to_string(current().column) + " РїРѕР·РёС†РёРё");
         }
-        expect(TokenType::Semicolon, "Ожидалась ';' после объявления переменных");
-        // Для всех имён создаём отдельные VarDecl с общим типом
+        expect(TokenType::Semicolon, "РћР¶РёРґР°Р»Р°СЃСЊ ';' РїРѕСЃР»Рµ РѕР±СЉСЏРІР»РµРЅРёСЏ РїРµСЂРµРјРµРЅРЅС‹С…");
+        // Р”Р»СЏ РІСЃРµС… РёРјС‘РЅ СЃРѕР·РґР°С‘Рј РѕС‚РґРµР»СЊРЅС‹Рµ VarDecl СЃ РѕР±С‰РёРј С‚РёРїРѕРј
         for (const auto& name : names) {
             auto decl = make_shared<ASTNode>(ASTNodeType::VarDecl, name);
             auto typeNode = make_shared<ASTNode>(ASTNodeType::Identifier, typeName);
@@ -126,137 +223,159 @@ shared_ptr<ASTNode> Parser::parseVarSection() {
     return section;
 }
 
-// Разбор одного оператора (присваивание, вызов процедуры, if, while, write, read)
-shared_ptr<ASTNode> Parser::parseStatement() {
-    if (current().type == TokenType::Begin)
-        return parseBlock();
 
-    if (current().type == TokenType::Writeln)
-        return parseWriteln();
-    if (current().type == TokenType::Write)
-        return parseWrite();
-    if (current().type == TokenType::Readln)
-        return parseReadln();
-    if (current().type == TokenType::Read)
-        return parseRead();
 
-    if (current().type == TokenType::Identifier)
-    {
-        if (pos + 1 < tokens.size() && tokens[pos + 1].type == TokenType::Assign)
-            return parseAssignment();
-        else if (pos + 1 < tokens.size() && tokens[pos + 1].type == TokenType::LParen)
-            return parseProcedureCall();
-        else throw runtime_error("Ожидалось ':=' после идентификатора '" + current().value + "' в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
+// Р Р°Р·Р±РѕСЂ for
+shared_ptr<ASTNode> Parser::parseFor() {
+    expect(TokenType::For, "РћР¶РёРґР°Р»РѕСЃСЊ 'for'");
+    string varName = current().value;
+    expect(TokenType::Identifier, "РћР¶РёРґР°Р»СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРµСЂРµРјРµРЅРЅРѕР№ С†РёРєР»Р°");
+    expect(TokenType::Assign, "РћР¶РёРґР°Р»РѕСЃСЊ ':='");
+    auto fromExpr = parseExpression();
+
+    bool isDownto = false;
+    if (match(TokenType::To)) {
+        isDownto = false;
     }
-    if (current().type == TokenType::If)
-        return parseIf();
-    if (current().type == TokenType::While)
-        return parseWhile();
-    throw runtime_error("Неизвестный оператор в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
+    else if (match(TokenType::Downto)) {
+        isDownto = true;
+    }
+    else {
+        throw runtime_error("РћР¶РёРґР°Р»РѕСЃСЊ 'to' РёР»Рё 'downto'");
+    }
+
+    auto toExpr = parseExpression();
+    expect(TokenType::Do, "РћР¶РёРґР°Р»РѕСЃСЊ 'do'");
+    auto body = parseStatement();
+
+    auto forNode = make_shared<ASTNode>(ASTNodeType::ForLoop, varName);
+    forNode->children.push_back(fromExpr);
+    forNode->children.push_back(toExpr);
+    forNode->children.push_back(body);
+    if (isDownto)
+        forNode->value += "|downto";
+    return forNode;
 }
 
-// Разбор присваивания: <id> := <выражение>
+// Р Р°Р·Р±РѕСЂ РїСЂРёСЃРІР°РёРІР°РЅРёСЏ: <id> := <РІС‹СЂР°Р¶РµРЅРёРµ>
 shared_ptr<ASTNode> Parser::parseAssignment() {
     auto assign = make_shared<ASTNode>(ASTNodeType::Assignment);
-    assign->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, current().value));
-    expect(TokenType::Identifier, "Ожидался идентификатор");
-    expect(TokenType::Assign, "Ожидался ':='");
+    if (current().type != TokenType::Identifier)
+        throw runtime_error("РћР¶РёРґР°Р»СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РІ Р»РµРІРѕР№ С‡Р°СЃС‚Рё РїСЂРёСЃРІР°РёРІР°РЅРёСЏ");
+
+    string name = current().value;
+    pos++;
+
+    if (match(TokenType::LBracket)) {
+        auto indexExpr = parseExpression();
+        expect(TokenType::RBracket, "РћР¶РёРґР°Р»Р°СЃСЊ ']'");
+        auto access = make_shared<ASTNode>(ASTNodeType::ArrayAccess, name);
+        access->children.push_back(indexExpr);
+        assign->children.push_back(access);
+    }
+    else {
+        assign->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, name));
+    }
+
+    expect(TokenType::Assign, "РћР¶РёРґР°Р»СЃСЏ ':='");
     assign->children.push_back(parseExpression());
     return assign;
 }
 
-// Разбор вызова процедуры или функции: <id>(...)
+// Р Р°Р·Р±РѕСЂ РІС‹Р·РѕРІР° РїСЂРѕС†РµРґСѓСЂС‹ РёР»Рё С„СѓРЅРєС†РёРё: <id>(...)
 shared_ptr<ASTNode> Parser::parseProcedureCall() {
     string procName = current().value;
-    expect(TokenType::Identifier, "Ожидался идентификатор процедуры");
-    expect(TokenType::LParen, "Ожидалась '(' после имени процедуры");
+    expect(TokenType::Identifier, "РћР¶РёРґР°Р»СЃСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС†РµРґСѓСЂС‹");
+    expect(TokenType::LParen, "РћР¶РёРґР°Р»Р°СЃСЊ '(' РїРѕСЃР»Рµ РёРјРµРЅРё РїСЂРѕС†РµРґСѓСЂС‹");
     auto node = make_shared<ASTNode>(ASTNodeType::ProcCall, procName);
-    // Парсим аргументы (может быть несколько через запятую)
+    // РџР°СЂСЃРёРј Р°СЂРіСѓРјРµРЅС‚С‹ (РјРѕР¶РµС‚ Р±С‹С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ С‡РµСЂРµР· Р·Р°РїСЏС‚СѓСЋ)
     if (current().type != TokenType::RParen) {
         node->children.push_back(parseExpression());
         while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
     }
-    expect(TokenType::RParen, "Ожидалась ')' после аргументов процедуры");
+    expect(TokenType::RParen, "РћР¶РёРґР°Р»Р°СЃСЊ ')' РїРѕСЃР»Рµ Р°СЂРіСѓРјРµРЅС‚РѕРІ РїСЂРѕС†РµРґСѓСЂС‹");
     return node;
 }
 
-// Разбор условного оператора if ... then ... [else ...]
+// Р Р°Р·Р±РѕСЂ СѓСЃР»РѕРІРЅРѕРіРѕ РѕРїРµСЂР°С‚РѕСЂР° if ... then ... [else ...]
 shared_ptr<ASTNode> Parser::parseIf() {
-    expect(TokenType::If, "Ожидалось 'if'");
+    expect(TokenType::If, "РћР¶РёРґР°Р»РѕСЃСЊ 'if'");
     auto node = make_shared<ASTNode>(ASTNodeType::If);
     node->children.push_back(parseExpression());
-    expect(TokenType::Then, "Ожидалось 'then'");
+    expect(TokenType::Then, "РћР¶РёРґР°Р»РѕСЃСЊ 'then'");
     node->children.push_back(parseStatement());
     if (match(TokenType::Else))
         node->children.push_back(parseStatement());
     return node;
 }
 
-// Разбор цикла while ... do ...
+// Р Р°Р·Р±РѕСЂ С†РёРєР»Р° while ... do ...
 shared_ptr<ASTNode> Parser::parseWhile() {
-    expect(TokenType::While, "Ожидалось 'while'");
+    expect(TokenType::While, "РћР¶РёРґР°Р»РѕСЃСЊ 'while'");
     auto node = make_shared<ASTNode>(ASTNodeType::While);
     node->children.push_back(parseExpression());
-    expect(TokenType::Do, "Ожидалось 'do'");
+    expect(TokenType::Do, "РћР¶РёРґР°Р»РѕСЃСЊ 'do'");
     node->children.push_back(parseStatement());
     return node;
 }
 
-// Разбор оператора write(...)
+// Р Р°Р·Р±РѕСЂ РѕРїРµСЂР°С‚РѕСЂР° write(...)
 shared_ptr<ASTNode> Parser::parseWrite() {
-    expect(TokenType::Write, "Ожидалось 'Write'");
+    expect(TokenType::Write, "РћР¶РёРґР°Р»РѕСЃСЊ 'Write'");
     auto node = make_shared<ASTNode>(ASTNodeType::Write);
-    expect(TokenType::LParen, "Ожидалась '(' после Write");
+    expect(TokenType::LParen, "РћР¶РёРґР°Р»Р°СЃСЊ '(' РїРѕСЃР»Рµ Write");
     if (current().type != TokenType::RParen) {
         node->children.push_back(parseExpression());
         while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
     }
-    expect(TokenType::RParen, "Ожидалась ')' после Write");
+    expect(TokenType::RParen, "РћР¶РёРґР°Р»Р°СЃСЊ ')' РїРѕСЃР»Рµ Write");
     return node;
 }
 
-// Разбор оператора read(...)
+// Р Р°Р·Р±РѕСЂ РѕРїРµСЂР°С‚РѕСЂР° read(...)
 shared_ptr<ASTNode> Parser::parseRead() {
-    expect(TokenType::Read, "Ожидалось 'read'");
+    expect(TokenType::Read, "РћР¶РёРґР°Р»РѕСЃСЊ 'read'");
     auto node = make_shared<ASTNode>(ASTNodeType::Read);
-    expect(TokenType::LParen, "Ожидалась '(' после read");
+    expect(TokenType::LParen, "РћР¶РёРґР°Р»Р°СЃСЊ '(' РїРѕСЃР»Рµ read");
     node->children.push_back(parseExpression());
-    expect(TokenType::RParen, "Ожидалась ')' после read");
+    expect(TokenType::RParen, "РћР¶РёРґР°Р»Р°СЃСЊ ')' РїРѕСЃР»Рµ read");
     return node;
 }
 
+// Р Р°Р·Р±РѕСЂ РѕРїРµСЂР°С‚РѕСЂР° writeln(...)
 shared_ptr<ASTNode> Parser::parseWriteln() {
-    expect(TokenType::Writeln, "Ожидалось 'Writeln'");
+    expect(TokenType::Writeln, "РћР¶РёРґР°Р»РѕСЃСЊ 'Writeln'");
     auto node = make_shared<ASTNode>(ASTNodeType::Writeln);
-    expect(TokenType::LParen, "Ожидалась '(' после 'Writeln'");
-    // Поддержка zero или более аргументов
+    expect(TokenType::LParen, "РћР¶РёРґР°Р»Р°СЃСЊ '(' РїРѕСЃР»Рµ 'Writeln'");
+    // РџРѕРґРґРµСЂР¶РєР° zero РёР»Рё Р±РѕР»РµРµ Р°СЂРіСѓРјРµРЅС‚РѕРІ
     if (current().type != TokenType::RParen) {
         node->children.push_back(parseExpression());
         while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
     }
-    expect(TokenType::RParen, "Ожидалась ')' после аргументов 'Writeln'");
+    expect(TokenType::RParen, "РћР¶РёРґР°Р»Р°СЃСЊ ')' РїРѕСЃР»Рµ Р°СЂРіСѓРјРµРЅС‚РѕРІ 'Writeln'");
     return node;
 }
 
+// Р Р°Р·Р±РѕСЂ РѕРїРµСЂР°С‚РѕСЂР° readln(...)
 shared_ptr<ASTNode> Parser::parseReadln() {
-    expect(TokenType::Readln, "Ожидалось 'readln'");
+    expect(TokenType::Readln, "РћР¶РёРґР°Р»РѕСЃСЊ 'readln'");
     auto node = make_shared<ASTNode>(ASTNodeType::Readln);
-    expect(TokenType::LParen, "Ожидалась '(' после 'readln'");
-    // Поддержка одного и более аргументов (чтобы знать, куда читать)
+    expect(TokenType::LParen, "РћР¶РёРґР°Р»Р°СЃСЊ '(' РїРѕСЃР»Рµ 'readln'");
+    // РџРѕРґРґРµСЂР¶РєР° РѕРґРЅРѕРіРѕ Рё Р±РѕР»РµРµ Р°СЂРіСѓРјРµРЅС‚РѕРІ (С‡С‚РѕР±С‹ Р·РЅР°С‚СЊ, РєСѓРґР° С‡РёС‚Р°С‚СЊ)
     if (current().type != TokenType::RParen) {
-        // обычно readln(x, y, ...)
+        // РѕР±С‹С‡РЅРѕ readln(x, y, ...)
         node->children.push_back(parseExpression());
         while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
     }
-    expect(TokenType::RParen, "Ожидалась ')' после аргументов 'readln'");
+    expect(TokenType::RParen, "РћР¶РёРґР°Р»Р°СЃСЊ ')' РїРѕСЃР»Рµ Р°СЂРіСѓРјРµРЅС‚РѕРІ 'readln'");
     return node;
 }
 
-// Разбор выражения с поддержкой логических и сравнительных операций
+// Р Р°Р·Р±РѕСЂ РІС‹СЂР°Р¶РµРЅРёСЏ СЃ РїРѕРґРґРµСЂР¶РєРѕР№ Р»РѕРіРёС‡РµСЃРєРёС… Рё СЃСЂР°РІРЅРёС‚РµР»СЊРЅС‹С… РѕРїРµСЂР°С†РёР№
 shared_ptr<ASTNode> Parser::parseExpression() {
     auto left = parseSimpleExpression();
     if (current().type == TokenType::Equal || current().type == TokenType::NotEqual ||
@@ -271,7 +390,7 @@ shared_ptr<ASTNode> Parser::parseExpression() {
     return left;
 }
 
-// Разбор простого выражения: сложение, вычитание, or
+// Р Р°Р·Р±РѕСЂ РїСЂРѕСЃС‚РѕРіРѕ РІС‹СЂР°Р¶РµРЅРёСЏ: СЃР»РѕР¶РµРЅРёРµ, РІС‹С‡РёС‚Р°РЅРёРµ, or
 shared_ptr<ASTNode> Parser::parseSimpleExpression() {
     auto left = parseTerm();
     while (current().type == TokenType::Plus || current().type == TokenType::Minus ||
@@ -285,7 +404,7 @@ shared_ptr<ASTNode> Parser::parseSimpleExpression() {
     return left;
 }
 
-// Разбор терма: умножение, деление, and
+// Р Р°Р·Р±РѕСЂ С‚РµСЂРјР°: СѓРјРЅРѕР¶РµРЅРёРµ, РґРµР»РµРЅРёРµ, and
 shared_ptr<ASTNode> Parser::parseTerm() {
     auto left = parseFactor();
     while (current().type == TokenType::Multiply || current().type == TokenType::Divide ||
@@ -299,11 +418,11 @@ shared_ptr<ASTNode> Parser::parseTerm() {
     return left;
 }
 
-// Разбор множителя: числа, идентификаторы, строковые литералы, унарные операторы, скобки
+// Р Р°Р·Р±РѕСЂ РјРЅРѕР¶РёС‚РµР»СЏ: С‡РёСЃР»Р°, РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹, СЃС‚СЂРѕРєРѕРІС‹Рµ Р»РёС‚РµСЂР°Р»С‹, СѓРЅР°СЂРЅС‹Рµ РѕРїРµСЂР°С‚РѕСЂС‹, СЃРєРѕР±РєРё
 shared_ptr<ASTNode> Parser::parseFactor() {
     if (match(TokenType::LParen)) {
         auto expr = parseExpression();
-        expect(TokenType::RParen, "Ожидалась ')'");
+        expect(TokenType::RParen, "РћР¶РёРґР°Р»Р°СЃСЊ ')'");
         return expr;
     }
     if (current().type == TokenType::RealLiteral) {
@@ -328,9 +447,17 @@ shared_ptr<ASTNode> Parser::parseFactor() {
         return node;
     }
     if (current().type == TokenType::Identifier) {
-        auto node = make_shared<ASTNode>(ASTNodeType::Identifier, current().value);
+        string name = current().value;
         pos++;
-        return node;
+        if (match(TokenType::LBracket)) {
+            auto index = parseExpression();
+            expect(TokenType::RBracket, "РћР¶РёРґР°Р»Р°СЃСЊ ']'");
+
+            auto access = make_shared<ASTNode>(ASTNodeType::ArrayAccess, name);
+            access->children.push_back(index);
+            return access;
+        }
+        return make_shared<ASTNode>(ASTNodeType::Identifier, name);
     }
     if (match(TokenType::Minus)) {
         auto node = make_shared<ASTNode>(ASTNodeType::UnOp, "-");
@@ -344,5 +471,5 @@ shared_ptr<ASTNode> Parser::parseFactor() {
     }
     int errLine = current().line;
     int errCol = current().column;
-    throw runtime_error("Ожидалось число, идентификатор или выражение в скобках в " + to_string(errLine) + " строчке, " + to_string(errCol) + " позиции");
+    throw runtime_error("РћР¶РёРґР°Р»РѕСЃСЊ С‡РёСЃР»Рѕ, РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР»Рё РІС‹СЂР°Р¶РµРЅРёРµ РІ СЃРєРѕР±РєР°С… РІ " + to_string(errLine) + " СЃС‚СЂРѕС‡РєРµ, " + to_string(errCol) + " РїРѕР·РёС†РёРё");
 }
