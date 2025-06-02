@@ -1,22 +1,11 @@
-program SumEven;
+program ПроверкаЧётности;
 var
-  numbers: array[1..10] of integer;
-  i, sum: integer;
+    число: integer;
 begin
-  sum := 0;
-
-  // Заполняем массив числами от 1 до 10
-  for i := 1 to 10 do
-  begin
-    numbers[i] := i;
-  end;
-
-  // Считаем сумму только чётных чисел
-  for i := 1 to 10 do
-  begin
-    if numbers[i] mod 2 = 0 then
-      sum := sum + numbers[i];
-  end;
-
-  writeln('Sum of even numbers: ', sum);
+    write('Введите число: ');
+    read(число);
+    if число mod 2 = 0 then
+        write('Чётное')
+    else
+        write('Нечётное');
 end.

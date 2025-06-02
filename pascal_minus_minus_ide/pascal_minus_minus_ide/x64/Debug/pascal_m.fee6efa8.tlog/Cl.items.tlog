@@ -1,6 +1,6 @@
-C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\source\interpreter.cpp;C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\interpreter.obj
-C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\source\lexer.cpp;C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\lexer.obj
-C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\source\main.cpp;C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\main.obj
-C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\source\parser.cpp;C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\parser.obj
-C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\source\postfix.cpp;C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\postfix.obj
-C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\source\symbol_table.cpp;C:\Users\users\Documents\GitHub\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\symbol_table.obj
+D:\lab2-pascal_execution_env\pascal_minus_minus_ide\source\interpreter.cpp;D:\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\interpreter.obj
+D:\lab2-pascal_execution_env\pascal_minus_minus_ide\source\lexer.cpp;D:\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\lexer.obj
+D:\lab2-pascal_execution_env\pascal_minus_minus_ide\source\main.cpp;D:\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\main.obj
+D:\lab2-pascal_execution_env\pascal_minus_minus_ide\source\parser.cpp;D:\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\parser.obj
+D:\lab2-pascal_execution_env\pascal_minus_minus_ide\source\postfix.cpp;D:\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\postfix.obj
+D:\lab2-pascal_execution_env\pascal_minus_minus_ide\source\symbol_table.cpp;D:\lab2-pascal_execution_env\pascal_minus_minus_ide\pascal_minus_minus_ide\x64\Debug\symbol_table.obj

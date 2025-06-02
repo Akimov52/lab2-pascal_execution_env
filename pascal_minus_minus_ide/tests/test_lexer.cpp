@@ -1,13 +1,13 @@
-#include <gtest/gtest.h>
+#include <gtest.h>
 #include "lexer.h"
 
-// Проверка токенизации всех ключевых слов языка
+// РџСЂРѕРІРµСЂРєР° С‚РѕРєРµРЅРёР·Р°С†РёРё РІСЃРµС… РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ СЏР·С‹РєР°
 TEST(LexerTest, TokenizeAllKeywords) {
-    // Передаём строку, содержащую все ключевые слова
+    // РџРµСЂРµРґР°С‘Рј СЃС‚СЂРѕРєСѓ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РІСЃРµ РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР°
     Lexer lexer("program var begin end const if then else while do read readln write writeln");
     auto tokens = lexer.tokenize();
 
-    // Проверяем, что каждый токен правильно распознан как ключевое слово
+    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РєР°Р¶РґС‹Р№ С‚РѕРєРµРЅ РїСЂР°РІРёР»СЊРЅРѕ СЂР°СЃРїРѕР·РЅР°РЅ РєР°Рє РєР»СЋС‡РµРІРѕРµ СЃР»РѕРІРѕ
     EXPECT_EQ(tokens[0].type, TokenType::Program);
     EXPECT_EQ(tokens[1].type, TokenType::Var);
     EXPECT_EQ(tokens[2].type, TokenType::Begin);
@@ -24,28 +24,28 @@ TEST(LexerTest, TokenizeAllKeywords) {
     EXPECT_EQ(tokens[13].type, TokenType::Writeln);
 }
 
-// Проверка распознавания идентификаторов, чисел и строк
+// РџСЂРѕРІРµСЂРєР° СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ, С‡РёСЃРµР» Рё СЃС‚СЂРѕРє
 TEST(LexerTest, TokenizeIdentifiersNumbersStrings) {
-    // Передаём смешанную строку с идентификаторами, числами и строковыми литералами
+    // РџРµСЂРµРґР°С‘Рј СЃРјРµС€Р°РЅРЅСѓСЋ СЃС‚СЂРѕРєСѓ СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°РјРё, С‡РёСЃР»Р°РјРё Рё СЃС‚СЂРѕРєРѕРІС‹РјРё Р»РёС‚РµСЂР°Р»Р°РјРё
     Lexer lexer("x y z 123 456 'hello' 'world'");
     auto tokens = lexer.tokenize();
 
-    // Проверка типов токенов
+    // РџСЂРѕРІРµСЂРєР° С‚РёРїРѕРІ С‚РѕРєРµРЅРѕРІ
     EXPECT_EQ(tokens[0].type, TokenType::Identifier);  // x
     EXPECT_EQ(tokens[3].type, TokenType::Number);      // 123
     EXPECT_EQ(tokens[5].type, TokenType::String);      // 'hello'
-    EXPECT_EQ(tokens[5].value, "hello");               // значение строки
+    EXPECT_EQ(tokens[5].value, "hello");               // Р·РЅР°С‡РµРЅРёРµ СЃС‚СЂРѕРєРё
     EXPECT_EQ(tokens[6].type, TokenType::String);      // 'world'
     EXPECT_EQ(tokens[6].value, "world");
 }
 
-// Проверка распознавания операторов и разделителей
+// РџСЂРѕРІРµСЂРєР° СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ РѕРїРµСЂР°С‚РѕСЂРѕРІ Рё СЂР°Р·РґРµР»РёС‚РµР»РµР№
 TEST(LexerTest, TokenizeOperatorsAndDelimiters) {
-    // Строка содержит все основные операторы и разделители
+    // РЎС‚СЂРѕРєР° СЃРѕРґРµСЂР¶РёС‚ РІСЃРµ РѕСЃРЅРѕРІРЅС‹Рµ РѕРїРµСЂР°С‚РѕСЂС‹ Рё СЂР°Р·РґРµР»РёС‚РµР»Рё
     Lexer lexer(":= + - * / = <> < <= > >= ; , . ( )");
     auto tokens = lexer.tokenize();
 
-    // Проверка каждого токена на соответствие ожидаемому типу
+    // РџСЂРѕРІРµСЂРєР° РєР°Р¶РґРѕРіРѕ С‚РѕРєРµРЅР° РЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ РѕР¶РёРґР°РµРјРѕРјСѓ С‚РёРїСѓ
     EXPECT_EQ(tokens[0].type, TokenType::Assign);
     EXPECT_EQ(tokens[1].type, TokenType::Plus);
     EXPECT_EQ(tokens[2].type, TokenType::Minus);
@@ -64,12 +64,12 @@ TEST(LexerTest, TokenizeOperatorsAndDelimiters) {
     EXPECT_EQ(tokens[15].type, TokenType::RParen);
 }
 
-// Проверка корректной токенизации при наличии различных пробелов и табуляции
+// РџСЂРѕРІРµСЂРєР° РєРѕСЂСЂРµРєС‚РЅРѕР№ С‚РѕРєРµРЅРёР·Р°С†РёРё РїСЂРё РЅР°Р»РёС‡РёРё СЂР°Р·Р»РёС‡РЅС‹С… РїСЂРѕР±РµР»РѕРІ Рё С‚Р°Р±СѓР»СЏС†РёРё
 TEST(LexerTest, TokenizeMixedWhitespace) {
     Lexer lexer("var   x\t:=  10 ;");
     auto tokens = lexer.tokenize();
 
-    // Проверка, что лексер правильно игнорирует пробелы и табуляцию
+    // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ Р»РµРєСЃРµСЂ РїСЂР°РІРёР»СЊРЅРѕ РёРіРЅРѕСЂРёСЂСѓРµС‚ РїСЂРѕР±РµР»С‹ Рё С‚Р°Р±СѓР»СЏС†РёСЋ
     EXPECT_EQ(tokens[0].type, TokenType::Var);
     EXPECT_EQ(tokens[1].type, TokenType::Identifier);  // x
     EXPECT_EQ(tokens[2].type, TokenType::Assign);      // :=
@@ -77,12 +77,12 @@ TEST(LexerTest, TokenizeMixedWhitespace) {
     EXPECT_EQ(tokens[4].type, TokenType::Semicolon);   // ;
 }
 
-// Проверка, что лексер корректно игнорирует комментарии в фигурных скобках
+// РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ Р»РµРєСЃРµСЂ РєРѕСЂСЂРµРєС‚РЅРѕ РёРіРЅРѕСЂРёСЂСѓРµС‚ РєРѕРјРјРµРЅС‚Р°СЂРёРё РІ С„РёРіСѓСЂРЅС‹С… СЃРєРѕР±РєР°С…
 TEST(LexerTest, TokenizeComments) {
     Lexer lexer("x := 1; { this is a comment } y := 2;");
     auto tokens = lexer.tokenize();
 
-    // Комментарии не должны попасть в результат — только реальные токены
+    // РљРѕРјРјРµРЅС‚Р°СЂРёРё РЅРµ РґРѕР»Р¶РЅС‹ РїРѕРїР°СЃС‚СЊ РІ СЂРµР·СѓР»СЊС‚Р°С‚ вЂ” С‚РѕР»СЊРєРѕ СЂРµР°Р»СЊРЅС‹Рµ С‚РѕРєРµРЅС‹
     EXPECT_EQ(tokens[0].type, TokenType::Identifier);  // x
     EXPECT_EQ(tokens[1].type, TokenType::Assign);      // :=
     EXPECT_EQ(tokens[2].type, TokenType::Number);      // 1
@@ -93,15 +93,98 @@ TEST(LexerTest, TokenizeComments) {
     EXPECT_EQ(tokens[7].type, TokenType::Semicolon);   // ;
 }
 
-// Проверка, что лексер не падает при пустом вводе и возвращает пустой список токенов
+// РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ Р»РµРєСЃРµСЂ РЅРµ РїР°РґР°РµС‚ РїСЂРё РїСѓСЃС‚РѕРј РІРІРѕРґРµ Рё РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє С‚РѕРєРµРЅРѕРІ
 TEST(LexerTest, TokenizeEmptyInput) {
     Lexer lexer("");
     auto tokens = lexer.tokenize();
-    EXPECT_TRUE(tokens.empty()); // Ожидаем, что токенов нет
+    EXPECT_TRUE(tokens.empty()); // РћР¶РёРґР°РµРј, С‡С‚Рѕ С‚РѕРєРµРЅРѕРІ РЅРµС‚
 }
 
-// Проверка, что лексер выбрасывает исключение при встрече невалидного символа
+// РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ Р»РµРєСЃРµСЂ РІС‹Р±СЂР°СЃС‹РІР°РµС‚ РёСЃРєР»СЋС‡РµРЅРёРµ РїСЂРё РІСЃС‚СЂРµС‡Рµ РЅРµРІР°Р»РёРґРЅРѕРіРѕ СЃРёРјРІРѕР»Р°
 TEST(LexerTest, TokenizeInvalidSymbol) {
     Lexer lexer("@");
-    EXPECT_THROW(lexer.tokenize(), std::runtime_error); // Ожидаем ошибку на невалидный символ
+    EXPECT_THROW(lexer.tokenize(), std::runtime_error); // РћР¶РёРґР°РµРј РѕС€РёР±РєСѓ РЅР° РЅРµРІР°Р»РёРґРЅС‹Р№ СЃРёРјРІРѕР»
+}
+
+// РџСЂРѕРІРµСЂРєР° С‚РѕРєРµРЅРёР·Р°С†РёРё РєР»СЋС‡РµРІС‹С… СЃР»РѕРІ С†РёРєР»Р° for
+TEST(LexerTest, TokenizeForLoop) {
+    Lexer lexer("for i := 1 to 10 do begin end;");
+    auto tokens = lexer.tokenize();
+    
+    // РџСЂРѕРІРµСЂСЏРµРј РєР»СЋС‡РµРІС‹Рµ СЃР»РѕРІР° for, to, do
+    EXPECT_EQ(tokens[0].type, TokenType::For);
+    EXPECT_EQ(tokens[3].type, TokenType::To);  // РџРѕСЃР»Рµ "i :="
+    EXPECT_EQ(tokens[5].type, TokenType::Do);  // РџРѕСЃР»Рµ "10"
+    
+    // РџСЂРѕРІРµСЂСЏРµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Рё С‡РёСЃР»Р°
+    EXPECT_EQ(tokens[1].type, TokenType::Identifier);
+    EXPECT_EQ(tokens[1].value, "i");
+    EXPECT_EQ(tokens[4].type, TokenType::Number);
+    EXPECT_EQ(tokens[4].value, "10");
+}
+
+// РџСЂРѕРІРµСЂРєР° С‚РѕРєРµРЅРёР·Р°С†РёРё РєР»СЋС‡РµРІРѕРіРѕ СЃР»РѕРІР° downto
+TEST(LexerTest, TokenizeForDownto) {
+    Lexer lexer("for i := 10 downto 1 do x := x - 1;");
+    auto tokens = lexer.tokenize();
+    
+    // РџСЂРѕРІРµСЂСЏРµРј РєР»СЋС‡РµРІРѕРµ СЃР»РѕРІРѕ downto
+    EXPECT_EQ(tokens[0].type, TokenType::For);
+    EXPECT_EQ(tokens[3].type, TokenType::Downto);  // РџРѕСЃР»Рµ "10"
+}
+
+
+
+// РџСЂРѕРІРµСЂРєР° С‚РѕРєРµРЅРёР·Р°С†РёРё Р»РѕРіРёС‡РµСЃРєРёС… РѕРїРµСЂР°С‚РѕСЂРѕРІ
+TEST(LexerTest, TokenizeLogicalOperators) {
+    Lexer lexer("x and y or not z");
+    auto tokens = lexer.tokenize();
+    
+    // РџСЂРѕРІРµСЂСЏРµРј Р»РѕРіРёС‡РµСЃРєРёРµ РѕРїРµСЂР°С‚РѕСЂС‹
+    EXPECT_EQ(tokens[0].type, TokenType::Identifier); // x
+    EXPECT_EQ(tokens[1].type, TokenType::And);
+    EXPECT_EQ(tokens[2].type, TokenType::Identifier); // y
+    EXPECT_EQ(tokens[3].type, TokenType::Or);
+    EXPECT_EQ(tokens[4].type, TokenType::Not);
+    EXPECT_EQ(tokens[5].type, TokenType::Identifier); // z
+}
+
+// РџСЂРѕРІРµСЂРєР° С‚РѕРєРµРЅРёР·Р°С†РёРё Р±СѓР»РµРІС‹С… РєРѕРЅСЃС‚Р°РЅС‚
+TEST(LexerTest, TokenizeBooleanConstants) {
+    Lexer lexer("true false");
+    auto tokens = lexer.tokenize();
+    
+    // РџСЂРѕРІРµСЂСЏРµРј Р±СѓР»РµРІС‹ РєРѕРЅСЃС‚Р°РЅС‚С‹
+    EXPECT_EQ(tokens[0].type, TokenType::True);
+    EXPECT_EQ(tokens[1].type, TokenType::False);
+}
+
+// РџСЂРѕРІРµСЂРєР° С‚РѕРєРµРЅРёР·Р°С†РёРё РЅРµСЃРєРѕР»СЊРєРёС… РІР»РѕР¶РµРЅРЅС‹С… РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ
+TEST(LexerTest, TokenizeNestedComments) {
+    Lexer lexer("x := 1; { outer comment { inner comment } still in comment } y := 2;");
+    auto tokens = lexer.tokenize();
+    
+    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РєРѕРјРјРµРЅС‚Р°СЂРёРё РєРѕСЂСЂРµРєС‚РЅРѕ РїСЂРѕРїСѓС‰РµРЅС‹
+    EXPECT_EQ(tokens[0].type, TokenType::Identifier);  // x
+    EXPECT_EQ(tokens[1].type, TokenType::Assign);      // :=
+    EXPECT_EQ(tokens[2].type, TokenType::Number);      // 1
+    EXPECT_EQ(tokens[3].type, TokenType::Semicolon);   // ;
+    EXPECT_EQ(tokens[4].type, TokenType::Identifier);  // y
+    EXPECT_EQ(tokens[5].type, TokenType::Assign);      // :=
+    EXPECT_EQ(tokens[6].type, TokenType::Number);      // 2
+    EXPECT_EQ(tokens[7].type, TokenType::Semicolon);   // ;
+}
+
+// РџСЂРѕРІРµСЂРєР° С‚РѕРєРµРЅРёР·Р°С†РёРё РІРµС‰РµСЃС‚РІРµРЅРЅС‹С… С‡РёСЃРµР»
+TEST(LexerTest, TokenizeRealNumbers) {
+    Lexer lexer("3.14 2.0 0.5");
+    auto tokens = lexer.tokenize();
+    
+    // РџСЂРѕРІРµСЂСЏРµРј РІРµС‰РµСЃС‚РІРµРЅРЅС‹Рµ С‡РёСЃР»Р°
+    EXPECT_EQ(tokens[0].type, TokenType::Number);
+    EXPECT_EQ(tokens[0].value, "3.14");
+    EXPECT_EQ(tokens[1].type, TokenType::Number);
+    EXPECT_EQ(tokens[1].value, "2.0");
+    EXPECT_EQ(tokens[2].type, TokenType::Number);
+    EXPECT_EQ(tokens[2].value, "0.5");
 }

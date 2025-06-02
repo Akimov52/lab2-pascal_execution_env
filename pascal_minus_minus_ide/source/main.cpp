@@ -5,10 +5,16 @@
 #include <sstream>
 #include <cstdlib>
 #include <windows.h>
+#include <memory>
 
 #include "parser.h"
 #include "interpreter.h"
+#include "error_reporter.h"
+#include "postfix.h"
 #include <symbol_table.h>
+
+// Используем using namespace std для упрощения кода
+using namespace std;
 
 // Очистить экран консоли (Windows)
 void clearConsole() {
@@ -52,7 +58,7 @@ int main() {
     bool running = true;   // Флаг для основного цикла программы
     bool edited = false;   // Флаг наличия несохранённых изменений
     // Указатель на последний запущенный интерпретатор — нужен для команды vars
-    Interpreter* lastInterp = nullptr;
+    IInterpreter* lastInterp = nullptr;
 
     // Главный цикл работы IDE
     while (running) {
@@ -128,10 +134,14 @@ int main() {
         else if (command == "check" && !source.empty()) {
             try {
                 cout << endl << "Проверка синтаксиса..." << endl;
-                Lexer lexer(source);
+                // Создаем обработчик ошибок
+                auto errorReporter = std::make_shared<ErrorReporter>();
+                // Инициализируем лексер
+                Lexer lexer(source, errorReporter);
                 auto tokens = lexer.tokenize();
-                Parser parser(tokens);
-                parser.parse();
+                // Создаем парсер
+                std::shared_ptr<IParser> parser = std::make_shared<Parser>(tokens, errorReporter);
+                parser->parse();
                 cout << endl << "Синтаксических ошибок не обнаружено." << endl;
             }
             catch (const exception& e) {
@@ -143,12 +153,16 @@ int main() {
         else if (command == "run" && !source.empty()) {
             try {
                 cout << endl << "Запуск программы..." << endl << endl;
-                Lexer lexer(source);
+                // Создаем обработчик ошибок
+                auto errorReporter = std::make_shared<ErrorReporter>();
+                // Инициализируем лексер
+                Lexer lexer(source, errorReporter);
                 auto tokens = lexer.tokenize();
-                Parser parser(tokens);
-                auto ast = parser.parse();
+                // Создаем парсер
+                std::shared_ptr<IParser> parser = std::make_shared<Parser>(tokens, errorReporter);
+                auto ast = parser->parse();
                 delete lastInterp;
-                lastInterp = new Interpreter();
+                lastInterp = new Interpreter(errorReporter);
                 lastInterp->run(ast);
                 cout << endl << endl << "Программа завершила выполнение." << endl;
             }
@@ -183,7 +197,7 @@ int main() {
                         break;
                     case ValueType::String:
                         typeStr = "string";
-                        valStr = val.strValue;
+                        valStr = val.stringValue;
                         break;
                     }
                     st.addSymbol(SymbolInfo{ name, typeStr, valStr });

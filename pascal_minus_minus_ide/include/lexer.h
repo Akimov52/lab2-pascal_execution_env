@@ -7,6 +7,8 @@
 #include <cctype>
 #include <stdexcept>
 #include <memory>
+#include "interfaces.h"
+#include "error_reporter.h"
 
 using namespace std;
 
@@ -21,15 +23,13 @@ namespace PascalToken {
         Integer, Real, Boolean, StringType,
         For, To, Downto,
         True, False,
-        Array, Of, DotDot,
-        Procedure, Function, Return,
-        In, // Добавляем токен для оператора in
 
         // Операторы и разделители
         Plus, Minus, Multiply, Divide,
         DivKeyword, Mod,
         Assign, Equal, NotEqual, Less, LessEqual, Greater, GreaterEqual,
-        Semicolon, Colon, Comma, Dot, LParen, RParen, LBracket, RBracket,
+        Semicolon, Colon, Comma, Dot, LParen, RParen, 
+        // Удалены LBracket, RBracket (связанные с массивами)
         And, Or, Not,
 
         // Литералы и идентификаторы
@@ -56,12 +56,13 @@ struct Token {
 };
 
 // Класс лексического анализатора (лексера)
-class Lexer {
+class Lexer : public ILexer {
 private:
-    string source;        // Исходный текст программы
-    size_t position;      // Текущая позиция в строке
-    int line;             // Текущая строка
-    int column;           // Текущий столбец
+    string source;                // Исходный текст программы
+    size_t position;              // Текущая позиция в строке
+    int line;                     // Текущая строка
+    int column;                   // Текущий столбец
+    std::shared_ptr<IErrorReporter> errorReporter; // Обработчик ошибок
 
     // Вспомогательные методы для анализа текста
     char current() const;
@@ -78,7 +79,13 @@ private:
 
 public:
     explicit Lexer(const string& source); // Конструктор принимает исходный текст
-    vector<Token> tokenize();             // Основной метод: разбить текст на токены
+    Lexer(const string& source, std::shared_ptr<IErrorReporter> reporter); // Конструктор с обработчиком ошибок
+    vector<Token> tokenize() override;    // Основной метод: разбить текст на токены
+    
+    // Дополнительные методы
+    int getLine() const { return line; }
+    int getColumn() const { return column; }
+    std::string getSourceFragment(int line, int column, int length = 10) const; // Получить фрагмент исходного кода
 };
 
 #endif // LEXER_H

@@ -1,19 +1,12 @@
-program MaxElement;
+program ќбратныйќтсчЄт;
 var
-  arr: array[1..5] of integer;
-  i, max: integer;
+    i: integer;
 begin
-  arr[1] := 12;
-  arr[2] := 45;
-  arr[3] := 7;
-  arr[4] := 89;
-  arr[5] := 23;
-
-  max := arr[1];
-
-  for i := 2 to 5 do
-    if arr[i] > max then
-      max := arr[i];
-
-  writeln('Maximum element: ', max);
+    i := 5;
+    while i > 0 do
+    begin
+        write(i);
+        i := i - 1;
+    end;
+    write('ѕуск!');
 end.

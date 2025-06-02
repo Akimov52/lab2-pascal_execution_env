@@ -1,86 +1,117 @@
 #include <gtest/gtest.h>
 #include "parser.h"
 
-// Тест: Пустая программа (ожидается пустой AST с типом Program)
+// РўРµСЃС‚: РџСѓСЃС‚Р°СЏ РїСЂРѕРіСЂР°РјРјР° (РѕР¶РёРґР°РµС‚СЃСЏ РїСѓСЃС‚РѕР№ AST СЃ С‚РёРїРѕРј Program)
 TEST(ParserTest, ParseEmptyProgram) {
     Parser parser("");
     auto root = parser.parse();
-    EXPECT_EQ(root->type, ASTNodeType::Program);  // Узел программы
-    EXPECT_TRUE(root->children.empty());          // Без содержимого
+    EXPECT_EQ(root->type, ASTNodeType::Program);  // РЈР·РµР» РїСЂРѕРіСЂР°РјРјС‹
+    EXPECT_TRUE(root->children.empty());          // Р‘РµР· СЃРѕРґРµСЂР¶РёРјРѕРіРѕ
 }
 
-// Тест: Присваивание (x := 42;)
+// РўРµСЃС‚: РџСЂРёСЃРІР°РёРІР°РЅРёРµ (x := 42;)
 TEST(ParserTest, ParseAssignment) {
     Parser parser("x := 42;");
     auto root = parser.parse();
-    ASSERT_FALSE(root->children.empty());                 // Проверка, что AST не пустой
-    EXPECT_EQ(root->children[0]->type, ASTNodeType::Assignment); // Первый узел — присваивание
+    ASSERT_FALSE(root->children.empty());                 // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ AST РЅРµ РїСѓСЃС‚РѕР№
+    EXPECT_EQ(root->children[0]->type, ASTNodeType::Assignment); // РџРµСЂРІС‹Р№ СѓР·РµР» вЂ” РїСЂРёСЃРІР°РёРІР°РЅРёРµ
 }
 
-// Тест: Условная конструкция с else
+// РўРµСЃС‚: РЈСЃР»РѕРІРЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС†РёСЏ СЃ else
 TEST(ParserTest, ParseIfElse) {
     Parser parser("if 1 then x := 1 else x := 2;");
     auto root = parser.parse();
-    ASSERT_FALSE(root->children.empty());           // Убедиться, что есть содержимое
-    EXPECT_EQ(root->children[0]->type, ASTNodeType::If); // Первый узел — условие
+    ASSERT_FALSE(root->children.empty());           // РЈР±РµРґРёС‚СЊСЃСЏ, С‡С‚Рѕ РµСЃС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ
+    EXPECT_EQ(root->children[0]->type, ASTNodeType::If); // РџРµСЂРІС‹Р№ СѓР·РµР» вЂ” СѓСЃР»РѕРІРёРµ
     EXPECT_EQ(root->children[0]->children.size(), 3);    // cond, then, else
 }
 
-// Тест: Цикл while
+// РўРµСЃС‚: Р¦РёРєР» while
 TEST(ParserTest, ParseWhile) {
     Parser parser("while x < 10 do x := x + 1;");
     auto root = parser.parse();
-    ASSERT_FALSE(root->children.empty());             // AST не должен быть пустым
-    EXPECT_EQ(root->children[0]->type, ASTNodeType::While); // Тип — цикл
+    ASSERT_FALSE(root->children.empty());             // AST РЅРµ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј
+    EXPECT_EQ(root->children[0]->type, ASTNodeType::While); // РўРёРї вЂ” С†РёРєР»
 }
 
-// Тест: Вывод через write и writeln
+// РўРµСЃС‚: Р’С‹РІРѕРґ С‡РµСЂРµР· write Рё writeln
 TEST(ParserTest, ParseWriteWriteln) {
     Parser parser("write('hi'); writeln('bye');");
     auto root = parser.parse();
-    ASSERT_GE(root->children.size(), 2);              // Ожидаем минимум 2 инструкции
-    EXPECT_EQ(root->children[0]->type, ASTNodeType::Write);   // Первый — write
-    EXPECT_EQ(root->children[1]->type, ASTNodeType::Writeln); // Второй — writeln
+    ASSERT_GE(root->children.size(), 2);              // РћР¶РёРґР°РµРј РјРёРЅРёРјСѓРј 2 РёРЅСЃС‚СЂСѓРєС†РёРё
+    EXPECT_EQ(root->children[0]->type, ASTNodeType::Write);   // РџРµСЂРІС‹Р№ вЂ” write
+    EXPECT_EQ(root->children[1]->type, ASTNodeType::Writeln); // Р’С‚РѕСЂРѕР№ вЂ” writeln
 }
 
-// Тест: Объявления переменных
+// РўРµСЃС‚: РћР±СЉСЏРІР»РµРЅРёСЏ РїРµСЂРµРјРµРЅРЅС‹С…
 TEST(ParserTest, ParseVarDecl) {
     Parser parser("var x: integer; y: integer;");
     auto root = parser.parse();
-    // Здесь можно проверить, что корень содержит узел объявления переменных
-    // Например, если в AST создаётся специальный узел VarDecl:
+    // Р—РґРµСЃСЊ РјРѕР¶РЅРѕ РїСЂРѕРІРµСЂРёС‚СЊ, С‡С‚Рѕ РєРѕСЂРµРЅСЊ СЃРѕРґРµСЂР¶РёС‚ СѓР·РµР» РѕР±СЉСЏРІР»РµРЅРёСЏ РїРµСЂРµРјРµРЅРЅС‹С…
+    // РќР°РїСЂРёРјРµСЂ, РµСЃР»Рё РІ AST СЃРѕР·РґР°С‘С‚СЃСЏ СЃРїРµС†РёР°Р»СЊРЅС‹Р№ СѓР·РµР» VarDecl:
     // EXPECT_EQ(root->children[0]->type, ASTNodeType::VarDecl);
-    // EXPECT_EQ(root->children[0]->children.size(), 2); // x и y
+    // EXPECT_EQ(root->children[0]->children.size(), 2); // x Рё y
 }
 
-// Тест: Объявления констант
+// РўРµСЃС‚: РћР±СЉСЏРІР»РµРЅРёСЏ РєРѕРЅСЃС‚Р°РЅС‚
 TEST(ParserTest, ParseConstDecl) {
     Parser parser("const a = 10; b = 20;");
     auto root = parser.parse();
 }
 
-// Тест: Сложная программа с var, begin-end и циклом внутри
+// РўРµСЃС‚: РЎР»РѕР¶РЅР°СЏ РїСЂРѕРіСЂР°РјРјР° СЃ var, begin-end Рё С†РёРєР»РѕРј РІРЅСѓС‚СЂРё
 TEST(ParserTest, ParseComplexProgram) {
     Parser parser("var x: integer; begin x := 1; while x < 5 do x := x + 1; end.");
     auto root = parser.parse();
-    EXPECT_EQ(root->type, ASTNodeType::Program);   // Главный узел — программа
+    EXPECT_EQ(root->type, ASTNodeType::Program);   // Р“Р»Р°РІРЅС‹Р№ СѓР·РµР» вЂ” РїСЂРѕРіСЂР°РјРјР°
 
 
-// Тест: Ошибка синтаксиса — выражение отсутствует
+// РўРµСЃС‚: РћС€РёР±РєР° СЃРёРЅС‚Р°РєСЃРёСЃР° вЂ” РІС‹СЂР°Р¶РµРЅРёРµ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚
 TEST(ParserTest, ParseSyntaxError) {
     Parser parser("begin x := ; end.");
-    EXPECT_THROW(parser.parse(), std::runtime_error); // Ожидаем исключение
+    EXPECT_THROW(parser.parse(), std::runtime_error); // РћР¶РёРґР°РµРј РёСЃРєР»СЋС‡РµРЅРёРµ
 }
 
-// Тест: Последовательность нескольких присваиваний
+// РўРµСЃС‚: РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РЅРµСЃРєРѕР»СЊРєРёС… РїСЂРёСЃРІР°РёРІР°РЅРёР№
 TEST(ParserTest, ParseMultipleStatements) {
     Parser parser("x := 1; y := 2; z := x + y;");
     auto root = parser.parse();
 
-    // Проверка количества операторов
+    // РџСЂРѕРІРµСЂРєР° РєРѕР»РёС‡РµСЃС‚РІР° РѕРїРµСЂР°С‚РѕСЂРѕРІ
     EXPECT_EQ(root->children.size(), 3);
-    // Проверка типов узлов
+    // РџСЂРѕРІРµСЂРєР° С‚РёРїРѕРІ СѓР·Р»РѕРІ
     EXPECT_EQ(root->children[0]->type, ASTNodeType::Assignment);
     EXPECT_EQ(root->children[1]->type, ASTNodeType::Assignment);
     EXPECT_EQ(root->children[2]->type, ASTNodeType::Assignment);
 }
+
+// РўРµСЃС‚: Р¦РёРєР» for СЃ РІРѕР·СЂР°СЃС‚Р°РЅРёРµРј (to)
+TEST(ParserTest, ParseForTo) {
+    Parser parser("for i := 1 to 10 do x := x + i;");
+    auto root = parser.parse();
+    ASSERT_FALSE(root->children.empty());
+    EXPECT_EQ(root->children[0]->type, ASTNodeType::ForLoop);
+    EXPECT_EQ(root->children[0]->value, "i"); // РРјСЏ РїРµСЂРµРјРµРЅРЅРѕР№ С†РёРєР»Р°
+    ASSERT_EQ(root->children[0]->children.size(), 3); // РћС‚, РґРѕ Рё С‚РµР»Рѕ С†РёРєР»Р°
+}
+
+// РўРµСЃС‚: Р¦РёРєР» for СЃ СѓР±С‹РІР°РЅРёРµРј (downto)
+TEST(ParserTest, ParseForDownto) {
+    Parser parser("for i := 10 downto 1 do x := x - 1;");
+    auto root = parser.parse();
+    ASSERT_FALSE(root->children.empty());
+    EXPECT_EQ(root->children[0]->type, ASTNodeType::ForLoop);
+    EXPECT_EQ(root->children[0]->value, "i|downto"); // РРјСЏ РїРµСЂРµРјРµРЅРЅРѕР№ СЃ С„Р»Р°РіРѕРј downto
+    ASSERT_EQ(root->children[0]->children.size(), 3); // РћС‚, РґРѕ Рё С‚РµР»Рѕ С†РёРєР»Р°
+}
+
+// РўРµСЃС‚: Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… С‡РµСЂРµР· readln
+TEST(ParserTest, ParseReadln) {
+    Parser parser("readln(x, y, z);");
+    auto root = parser.parse();
+    ASSERT_FALSE(root->children.empty());
+    EXPECT_EQ(root->children[0]->type, ASTNodeType::Readln);
+    ASSERT_GE(root->children[0]->children.size(), 3); // РўСЂРё РїРµСЂРµРјРµРЅРЅС‹С… РґР»СЏ С‡С‚РµРЅРёСЏ
+}
+
+

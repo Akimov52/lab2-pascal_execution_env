@@ -1,30 +1,52 @@
 #ifndef AST_H
 #define AST_H
 
-#include "lexer.h" // Для TokenType
+/**
+ * @file ast.h
+ * @brief Абстрактное синтаксическое дерево (AST) для Pascal--
+ * 
+ * Определяет структуры данных для представления программы в виде дерева,
+ * что упрощает анализ и интерпретацию кода.
+ */
 
-// Перечисление поддерживаемых типов данных для семантического анализа и проверки типов
+#include <string>
+#include <vector>
+#include <memory>
+
+// Предварительное объявление типов для устранения циклических зависимостей
+struct Token;
+
+// Используем TokenType из пространства имен PascalToken
+namespace PascalToken { enum TokenType; }
+using PascalToken::TokenType;
+
+using namespace std;
+
+/**
+ * Перечисление поддерживаемых типов данных для семантического анализа и проверки типов
+ * Все базовые типы данных, поддерживаемые в языке Pascal--
+ */
 enum class DataType {
     Integer,    // Целое число
     Real,       // Вещественное число
     Boolean,    // Логический тип
-    String,     // Строка
-    Array,      // Массив
-    Procedure,  // Процедура
-    Function,   // Функция
-    Void        // Пустой тип (например, для процедур)
+    String      // Строка
 };
 
-// Описание типа переменной или выражения, включая вложенные типы для массивов
+/**
+ * Описание типа переменной или выражения
+ * Структура позволяет описывать базовые типы данных
+ */
 struct TypeInfo {
     DataType type;                         // Базовый тип данных
-    shared_ptr<TypeInfo> elementType;      // Тип элементов (для массивов)
-    int arraySize = 0;                     // Размер массива (если применимо)
 
-    explicit TypeInfo(DataType t) : type(t), elementType(nullptr), arraySize(0) {}
+    explicit TypeInfo(DataType t) : type(t) {}
 };
 
-// Перечисление всех возможных типов узлов AST (абстрактного синтаксического дерева)
+/**
+ * Перечисление всех возможных типов узлов AST (абстрактного синтаксического дерева)
+ * Каждый тип узла представляет определенную конструкцию языка Pascal--
+ */
 enum class ASTNodeType {
     Program,        // Главная программа
     Block,          // Блок begin-end
@@ -44,27 +66,21 @@ enum class ASTNodeType {
     Real,           // Вещественное число
     String,         // Строка
     Boolean,        // Логическое значение
-    Identifier,     // Идентификатор (имя переменной, функции и т.д.)
-    ProcCall,       // Вызов процедуры
+    Identifier,     // Идентификатор (имя переменной)
     BinOp,          // Бинарная операция (+, -, *, /, и т.д.)
     UnOp,           // Унарная операция (например, -a, not a)
-    ArrayDecl,      // Объявление массива
-    ArrayAccess,    // Обращение к элементу массива
-    ProcedureDecl,  // Объявление процедуры
-    FunctionDecl,   // Объявление функции
-    Call,           // Вызов функции/процедуры
-    Return,         // Оператор возврата
-    ForLoop,        // for ... := ... to ... do ...
-    DotDot          // ..
+    ForLoop         // for ... := ... to ... do ...
 };
 
 // Структура узла AST (абстрактного синтаксического дерева)
-struct ASTNode {
+class ASTNode {
+public:
     ASTNodeType type;                              // Тип узла
     string value;                                  // Значение (например, имя переменной или литерал)
     vector<shared_ptr<ASTNode>> children;          // Дочерние узлы (например, аргументы, тело блока)
 
     ASTNode(ASTNodeType t, const string& v = "") : type(t), value(v) {}
+    ASTNode(ASTNodeType t, const string& v, const shared_ptr<ASTNode>& child) : type(t), value(v) { children.push_back(child); }
     virtual ~ASTNode() = default;
 };
 

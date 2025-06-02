@@ -1,21 +1,61 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+/**
+ * @file parser.h
+ * @brief Синтаксический анализатор (парсер) для языка Pascal--
+ * 
+ * Отвечает за построение абстрактного синтаксического дерева (AST)
+ * из последовательности токенов, полученных от лексера.
+ */
+
 #include "ast.h"
 #include "lexer.h"
+#include "interfaces.h"
+#include "error_reporter.h"
 
-// Класс синтаксического анализатора (парсера)
-class Parser {
+/**
+ * Класс синтаксического анализатора (парсера)
+ * Реализует нисходящий рекурсивный анализ с предпросмотром для построения AST.
+ * Предоставляет методы для разбора всех конструкций языка Pascal--
+ */
+class Parser : public IParser {
 public:
-    // Конструктор принимает вектор токенов, полученных из лексера
-    explicit Parser(const vector<Token>& tokens);
+    /**
+     * Конструктор по умолчанию
+     * Создает парсер без начальных токенов и обработчика ошибок
+     */
+    Parser();
+    
+    /**
+     * Конструктор с обработчиком ошибок
+     * @param errorReporter Указатель на обработчик ошибок
+     */
+    explicit Parser(std::shared_ptr<IErrorReporter> errorReporter);
 
-    // Основной метод: построить AST из токенов
-    shared_ptr<ASTNode> parse();
+    /**
+     * Конструктор принимает вектор токенов, полученных из лексера
+     * @param tokens Список токенов для разбора
+     * @param errorReporter Опциональный обработчик ошибок
+     */
+    explicit Parser(const vector<Token>& tokens, std::shared_ptr<IErrorReporter> errorReporter = nullptr);
+
+    /**
+     * Реализация метода интерфейса IParser для синтаксического анализа
+     * @return Указатель на корневой узел построенного абстрактного синтаксического дерева
+     */
+    shared_ptr<ASTNode> parse() override;
+    
+    /**
+     * Возвращает имя компонента
+     * @return Строка с именем компонента ("Parser")
+     */
+    std::string getComponentName() const override { return "Parser"; }
 
 private:
-    const vector<Token>& tokens; // Список токенов для разбора
+    std::vector<Token> tokens;   // Список токенов для разбора
     size_t pos;                  // Текущая позиция в списке токенов
+    std::shared_ptr<IErrorReporter> errorReporter; // Обработчик ошибок
 
     // Получить текущий токен
     const Token& current() const;
@@ -35,14 +75,12 @@ private:
     shared_ptr<ASTNode> parseRead();             // Read(...)
     shared_ptr<ASTNode> parseReadln();           // Readln(...)
     shared_ptr<ASTNode> parseWriteln();          // Write(...)
-    shared_ptr<ASTNode> parseLogicalExpression(); // Выражение с логическими операциями
     shared_ptr<ASTNode> parseExpression();       // Общее выражение
     shared_ptr<ASTNode> parseSimpleExpression(); // Простое выражение (без логики)
     shared_ptr<ASTNode> parseTerm();             // Термы (умножение, деление и т.д.)
     shared_ptr<ASTNode> parseFactor();           // Факторы (числа, идентификаторы, скобки)
     shared_ptr<ASTNode> parseVarSection();       // var ... ;
     shared_ptr<ASTNode> parseConstSection();     // const ... ;
-    shared_ptr<ASTNode> parseProcedureCall();    // Вызов процедуры
     shared_ptr<ASTNode> parseFor();              // for ... to ... do ...
 
 };

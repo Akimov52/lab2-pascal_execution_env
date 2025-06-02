@@ -1,14 +1,12 @@
 #include "lexer.h"
-#include "iostream"
-using namespace std;
 
-// Конструктор по умолчанию для токена: инициализируем как EndOfFile с пустым значением
+// Конструктор по умолчанию для токена: устанавливает тип EndOfFile и пустые значения
 Token::Token() : type(TokenType::EndOfFile), value(""), line(0), column(0) {}
 
-// Конструктор токена с параметрами: тип, значение, строка и позиция
+// Конструктор токена с параметрами: тип, значение, строка и столбец
 Token::Token(TokenType t, const string& v, int l, int c) : type(t), value(v), line(l), column(c) {}
 
-// Проверка: является ли символ буквенным или кириллическим (Windows-1251)
+// Проверка: является ли символ латинской или кириллической буквой (Windows-1251)
 bool isAlphaCyrillic(unsigned char c) {
     // Латиница
     if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
@@ -19,24 +17,28 @@ bool isAlphaCyrillic(unsigned char c) {
     return false;
 }
 
-// Конструктор лексера: сохраняем исходный текст программы
-Lexer::Lexer(const string& source) : source(source), position(0), line(1), column(1) {}
+// Конструктор лексера: принимает исходный текст программы
+Lexer::Lexer(const string& source) : source(source), position(0), line(1), column(1), errorReporter(nullptr) {}
 
-// Получение текущего символа
+// Конструктор лексера с обработчиком ошибок
+Lexer::Lexer(const string& source, std::shared_ptr<IErrorReporter> reporter) 
+    : source(source), position(0), line(1), column(1), errorReporter(reporter) {}
+
+// Получить текущий символ
 char Lexer::current() const {
     if (position >= source.length())
         return '\0';
     return source[position];
 }
 
-// Посмотреть следующий символ (без перемещения курсора)
+// Посмотреть следующий символ (без продвижения позиции)
 char Lexer::peek() const {
     if (position + 1 >= source.length())
         return '\0';
     return source[position + 1];
 }
 
-// Перемещение курсора на один символ, обновляя строку и позицию
+// Продвинуть позицию на один символ, обновить строку и столбец
 void Lexer::advance() {
     if (position < source.length()) {
         if (source[position] == '\n') {
@@ -49,13 +51,13 @@ void Lexer::advance() {
     }
 }
 
-// Пропускаем все пробельные символы
+// Пропустить все пробельные символы
 void Lexer::skipWhitespace() {
     while (isspace((unsigned char)current()))
         advance();
 }
 
-// Пропускаем комментарии (Pascal: { ... } или (* ... *))
+// Пропустить комментарий (Pascal: { ... } или (* ... *))
 void Lexer::skipComment() {
     if (current() == '{') {
         advance();
@@ -83,7 +85,7 @@ void Lexer::skipComment() {
     }
 }
 
-// Проверяет, совпадает ли текущий символ с ожидаемым, и перемещается, если да
+// Проверить, совпадает ли текущий символ с ожидаемым, и продвинуться, если да
 bool Lexer::match(char expected) {
     if (current() == expected) {
         advance();
@@ -92,12 +94,12 @@ bool Lexer::match(char expected) {
     return false;
 }
 
-// Создаем токен с указанным типом и значением
+// Создать токен с указанным типом и значением
 Token Lexer::makeToken(TokenType type, const string& value) {
     return Token(type, value, line, column);
 }
 
-// Получение словаря ключевых слов Pascal
+// Получить таблицу ключевых слов Pascal
 const unordered_map<string, TokenType>& Lexer::getKeywords() const {
     static unordered_map<string, TokenType> keywords = {
         {"program", TokenType::Program},
@@ -120,18 +122,13 @@ const unordered_map<string, TokenType>& Lexer::getKeywords() const {
         {"string", TokenType::StringType},
         {"true", TokenType::True},
         {"false", TokenType::False},
-        {"array", TokenType::Array},
-        {"of", TokenType::Of},
-        {"procedure", TokenType::Procedure},
-        {"function", TokenType::Function},
-        {"return", TokenType::Return},
+
         {"div", TokenType::DivKeyword},
         {"mod", TokenType::Mod},
         {"and", TokenType::And},
         {"or", TokenType::Or},
         {"not", TokenType::Not},
         {"for", TokenType::For},
-        {"in", TokenType::Return}, // Временно используем Return вместо In
         {"to", TokenType::To},
         {"downto", TokenType::Downto},
     };
@@ -139,7 +136,7 @@ const unordered_map<string, TokenType>& Lexer::getKeywords() const {
 }
 
 
-// Считываем число (целое или вещественное)
+// Прочитать число (целое или вещественное)
 Token Lexer::readNumber() {
     string num;
     bool isReal = false;
@@ -166,7 +163,7 @@ Token Lexer::readNumber() {
         : makeToken(TokenType::Number, num);
 }
 
-// Считываем идентификатор или ключевое слово
+// Прочитать идентификатор или ключевое слово
 Token Lexer::readIdentifierOrKeyword() {
     string text;
     int startCol = column;
@@ -184,16 +181,16 @@ Token Lexer::readIdentifierOrKeyword() {
     return makeToken(TokenType::Identifier, text);
 }
 
-// Считываем строковый литерал (в одинарных или двойных кавычках)
+// Прочитать строковый литерал (в одинарных или двойных кавычках)
 Token Lexer::readString() {
     string str;
     int startCol = column;
-    char quote = current(); // Запоминаем кавычку (' или ")
-    advance(); // Пропускаем открывающую кавычку
+    char quote = current(); // Открывающая кавычка (' или ")
+    advance(); // Пропустить открывающую кавычку
 
     while (current() != quote && current() != '\0') {
         if (current() == '\\') {
-            advance(); // Пропускаем обратный слеш
+            advance(); // Пропустить обратный слэш
             if (current() == '\0')
                 break;
             // Обработка escape-последовательностей
@@ -202,7 +199,7 @@ Token Lexer::readString() {
             else if (current() == 't')
                 str += '\t';
             else
-                str += current(); // Прочие символы берём как есть
+                str += current(); // Просто добавить символ как есть
             advance();
         }
         else {
@@ -212,7 +209,7 @@ Token Lexer::readString() {
     }
 
     if (current() == quote) {
-        advance(); // Пропускаем закрывающую кавычку
+        advance(); // Пропустить закрывающую кавычку
         return makeToken(TokenType::StringLiteral, str);
     }
 
@@ -227,13 +224,7 @@ vector<Token> Lexer::tokenize() {
         skipWhitespace();
         skipComment();
 
-        if (current() == '.' && peek() == '.') {
-            std::cout << "Found DotDot (..) at position " << position << std::endl;
-            advance(); advance();
-            tokens.push_back(makeToken(TokenType::DotDot, ".."));
-            std::cout << "Added DotDot token to tokens list" << std::endl;
-            continue;
-        }
+        // Удалена обработка DotDot (..) - связано с массивами
 
 
         char c = current();
@@ -319,14 +310,7 @@ vector<Token> Lexer::tokenize() {
                 tokens.push_back(makeToken(TokenType::RParen, ")"));
                 advance();
                 break;
-            case '[':
-                tokens.push_back(makeToken(TokenType::LBracket, "["));
-                advance();
-                break;
-            case ']':
-                tokens.push_back(makeToken(TokenType::RBracket, "]"));
-                advance();
-                break;
+            // Удалена обработка квадратных скобок - связано с массивами
             default:
                 string error = "Unexpected character: ";
                 error += c;

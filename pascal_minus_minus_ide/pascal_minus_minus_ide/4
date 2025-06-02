@@ -1,12 +1,10 @@
-program vowels;
-var 
-  s: string;
-  count: integer;
+program СуммаЧисел;
+var
+    a, b: integer;
+    сумма: integer;
 begin
-  s := 'Hello, world!';
-  count := 0;
-  for i := 1 to length(s) do
-    if s[i] in ['a', 'e', 'i', 'o', 'u'] then
-      count := count + 1;
-  writeln('Количество гласных: ', count);
+    a := 5;
+    b := 3;
+    сумма := a + b;
+    write('Сумма = ', сумма);
 end.

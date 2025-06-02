@@ -1,16 +1,4 @@
-program Test;
-        var
-          i: integer;
-          a: array[1..5] of integer;
-
-        begin
-          for i := 1 to 5 do
-          begin
-            a[i] := i * 10;
-          end;
-
-          for i := 1 to 5 do
-          begin
-            writeln(a[i]);
-          end;
-        end.
+program ПриветМир;
+begin
+    write('Привет, мир!');
+end.

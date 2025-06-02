@@ -1,11 +1,22 @@
 #include "parser.h"
 #include "lexer.h"
-using PascalToken::TokenType;
+#include "error_reporter.h"
 #include <iostream>
+#include <stdexcept>
+
+using PascalToken::TokenType;
 using namespace std;
 
-// Конструктор парсера
-Parser::Parser(const vector<Token>& tokens) : tokens(tokens), pos(0) {}
+// Конструктор по умолчанию
+Parser::Parser() : pos(0), errorReporter(std::make_shared<ErrorReporter>()) {}
+
+// Конструктор с обработчиком ошибок
+Parser::Parser(std::shared_ptr<IErrorReporter> errorReporter) 
+    : pos(0), errorReporter(errorReporter ? errorReporter : std::make_shared<ErrorReporter>()) {}
+
+// Конструктор с токенами и обработчиком ошибок
+Parser::Parser(const vector<Token>& tokens, std::shared_ptr<IErrorReporter> errorReporter) 
+    : tokens(tokens), pos(0), errorReporter(errorReporter ? errorReporter : std::make_shared<ErrorReporter>()) {}
 
 const Token& Parser::current() const {
     if (pos >= tokens.size())
@@ -14,15 +25,19 @@ const Token& Parser::current() const {
 }
 
 bool Parser::match(TokenType type) {
-    if (pos >= tokens.size() || tokens[pos].type != type)
-        return false;
-    pos++;
-    return true;
+    if (current().type == type) {
+        pos++;
+        return true;
+    }
+    return false;
 }
 
 void Parser::expect(TokenType type, const string& errorMsg) {
-    if (!match(type))
-        throw runtime_error(errorMsg);
+    if (!match(type)) {
+        int errLine = current().line;
+        int errCol = current().column;
+        throw runtime_error(errorMsg + " в " + to_string(errLine) + " строчке, " + to_string(errCol) + " позиции");
+    }
 }
 
 shared_ptr<ASTNode> Parser::parse() {
@@ -30,117 +45,105 @@ shared_ptr<ASTNode> Parser::parse() {
 }
 
 shared_ptr<ASTNode> Parser::parseProgram() {
-    expect(TokenType::Program, "Ожидалось 'program'");
-    expect(TokenType::Identifier, "Ожидался идентификатор программы после 'program'");
-    expect(TokenType::Semicolon, "Ожидалась ';' после имени программы");
-    auto program = make_shared<ASTNode>(ASTNodeType::Program);
-    program->children.push_back(parseBlock());
-    expect(TokenType::Dot, "Ожидалась '.' в конце программы");
-    return program;
+    expect(TokenType::Program, "Ожидалось ключевое слово 'program'");
+    auto prog = make_shared<ASTNode>(ASTNodeType::Program);
+    expect(TokenType::Identifier, "Ожидалось имя программы");
+    expect(TokenType::Semicolon, "Ожидалась точка с запятой после имени программы");
+    prog->children.push_back(parseBlock());
+    expect(TokenType::Dot, "Ожидалась точка в конце программы");
+    return prog;
 }
 
 shared_ptr<ASTNode> Parser::parseBlock() {
     auto block = make_shared<ASTNode>(ASTNodeType::Block);
-
-    // Парсим секцию констант, если она есть
-    if (match(TokenType::Const)) {
+    if (current().type == TokenType::Const)
         block->children.push_back(parseConstSection());
-    }
-
-    // Парсим секцию переменных, если она есть
-    if (match(TokenType::Var)) {
-        pos--; // Возвращаем 'var', т.к. это токен нужен для parseVarSection
+    if (current().type == TokenType::Var)
         block->children.push_back(parseVarSection());
-    }
-
-    // Парсим основное тело программы
     expect(TokenType::Begin, "Ожидалось 'begin'");
-    while (current().type != TokenType::End) {
-        block->children.push_back(parseStatement());
-        expect(TokenType::Semicolon, "Ожидалась ';' после оператора");
+    while (current().type != TokenType::End &&
+        current().type != TokenType::Dot &&
+        current().type != TokenType::EndOfFile) {
+        auto stmt = parseStatement();
+        if (stmt != nullptr) {
+            block->children.push_back(stmt);
+            cout << "Добавлен оператор типа " << static_cast<int>(stmt->type) << endl;
+        }
+        match(TokenType::Semicolon);
     }
     expect(TokenType::End, "Ожидалось 'end'");
     return block;
 }
 
 shared_ptr<ASTNode> Parser::parseStatement() {
-    // Разбор оператора в зависимости от текущего токена
+    cout << ">> parseStatement: " << current().value << " (" << static_cast<int>(current().type) << ")" << endl;
+    if (current().type == TokenType::End ||
+        current().type == TokenType::Dot ||
+        current().type == TokenType::EndOfFile) {
+        return nullptr;
+    }
+    if (current().type == TokenType::Begin)
+        return parseBlock();
+    if (current().type == TokenType::Writeln)
+        return parseWriteln();
+    if (current().type == TokenType::Write)
+        return parseWrite();
+    if (current().type == TokenType::Readln)
+        return parseReadln();
+    if (current().type == TokenType::Read)
+        return parseRead();
+    if (current().type == TokenType::If)
+        return parseIf();
+    if (current().type == TokenType::While)
+        return parseWhile();
+    if (current().type == TokenType::For)
+        return parseFor();
     if (current().type == TokenType::Identifier) {
+        size_t savedPos = pos;
         string id = current().value;
         pos++;
-        // Если дальше идёт ':=', то это присваивание
-        if (current().type == TokenType::Assign) {
-            pos--; // Возвращаем идентификатор
+
+        if (pos < tokens.size() && tokens[pos].type == TokenType::Assign) {
+            pos = savedPos;
             return parseAssignment();
         }
-        // Если дальше идёт '(', то это вызов процедуры
-        else if (current().type == TokenType::LParen) {
-            pos--; // Возвращаем идентификатор
-            return parseProcedureCall();
-        }
-        // Если дальше идёт '[', то это доступ к элементу массива с последующим присваиванием
-        else if (current().type == TokenType::LBracket) {
-            pos--; // Возвращаем идентификатор
-            return parseAssignment();
-        }
-        throw runtime_error("Неизвестный оператор начинающийся с идентификатора: " + id);
+        throw runtime_error("Ожидалось ':=' после идентификатора '" + id + "'");
     }
-    else if (match(TokenType::If)) {
-        pos--; // Возвращаем 'if'
-        return parseIf();
-    }
-    else if (match(TokenType::While)) {
-        pos--; // Возвращаем 'while'
-        return parseWhile();
-    }
-    else if (match(TokenType::For)) {
-        pos--; // Возвращаем 'for'
-        return parseFor();
-    }
-    else if (match(TokenType::Write)) {
-        pos--; // Возвращаем 'write'
-        return parseWrite();
-    }
-    else if (match(TokenType::Writeln)) {
-        pos--; // Возвращаем 'writeln'
-        return parseWriteln();
-    }
-    else if (match(TokenType::Read)) {
-        pos--; // Возвращаем 'read'
-        return parseRead();
-    }
-    else if (match(TokenType::Readln)) {
-        pos--; // Возвращаем 'readln'
-        return parseReadln();
-    }
-    throw runtime_error("Неизвестный оператор");
+    cerr << "Неизвестный токен в parseStatement: type=" << static_cast<int>(current().type) << " value=" << current().value << endl;
+    throw runtime_error("Неизвестный оператор в " + to_string(current().line) + " строчке");
 }
+
+
+
+
 
 // Разбор секции констант
 shared_ptr<ASTNode> Parser::parseConstSection() {
-    // expect(TokenType::Const, "Ожидалось 'const'"); // Уже проверено в parseBlock
+    expect(TokenType::Const, "Ожидалось 'const'");
     auto section = make_shared<ASTNode>(ASTNodeType::ConstSection);
-
-    // Считываем все объявления констант
     while (current().type == TokenType::Identifier) {
         string name = current().value;
         expect(TokenType::Identifier, "Ожидался идентификатор");
-        expect(TokenType::Equal, "Ожидалось '=' для константы");
-
-        auto constNode = make_shared<ASTNode>(ASTNodeType::ConstDecl, name);
-        constNode->children.push_back(parseExpression());
-        section->children.push_back(constNode);
-
-        expect(TokenType::Semicolon, "Ожидалась ';' после объявления константы");
+        string typeName;
+        if (match(TokenType::Colon)) {
+            expect(TokenType::Identifier, "Ожидался тип константы");
+            typeName = tokens[pos - 1].value;
+        }
+        else
+            throw runtime_error("Нужен тип для константы " + name);
+        expect(TokenType::Equal, "Ожидался '='");
+        auto value = parseExpression();
+        expect(TokenType::Semicolon, "Ожидалась ';'");
+        auto decl = make_shared<ASTNode>(ASTNodeType::ConstDecl, name);
+        decl->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, typeName));
+        decl->children.push_back(value);
+        section->children.push_back(decl);
     }
-
     return section;
 }
 
 // Разбор секции переменных: var x, y: integer;
-shared_ptr<ASTNode> Parser::parseVarSection()    // Разбор секции переменных
-{
-    std::cout << "DEBUG: Начало parseVarSection" << std::endl;
+shared_ptr<ASTNode> Parser::parseVarSection() {
     expect(TokenType::Var, "Ожидалось 'var'");
     auto section = make_shared<ASTNode>(ASTNodeType::VarSection);
     while (current().type == TokenType::Identifier) {
@@ -154,275 +157,117 @@ shared_ptr<ASTNode> Parser::parseVarSection()    // Разбор секции п
         }
         expect(TokenType::Colon, "Ожидалось ':' после списка имён");
         string typeName;
-
-        // Объявление обычной переменной
-        if (current().type == TokenType::Identifier || 
-            current().type == TokenType::Integer ||
-            current().type == TokenType::Real ||
-            current().type == TokenType::Boolean ||
-            current().type == TokenType::StringType) {
+        switch (current().type) {
+        case TokenType::Identifier:
+        case TokenType::Integer:
+        case TokenType::Real:
+        case TokenType::Boolean:
+        case TokenType::StringType:
             typeName = current().value;
-            pos++;
-            for (const auto& name : names) {
-                auto varNode = make_shared<ASTNode>(ASTNodeType::VarDecl, name);
-                varNode->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, typeName));
-                section->children.push_back(varNode);
-            }
-        }
-        // Объявление массива: array[0..9] of integer
-        else if (match(TokenType::Array)) {
-            std::cout << "DEBUG: Обработка объявления массива" << std::endl;
-            expect(TokenType::LBracket, "Ожидалась '[' после 'array'");
-            
-            // Анализ текущих токенов
-            std::cout << "DEBUG: Текущий токен: тип=" << static_cast<int>(current().type) << ", значение=" << current().value << std::endl;
-            
-            // Читаем нижнюю границу - извлекаем число из вещественного числа "1."
-            string lowerStr;
-            if (current().type == TokenType::Number || current().type == TokenType::RealLiteral) {
-                // Извлекаем число до точки
-                lowerStr = current().value;
-                if (lowerStr.back() == '.') {
-                    lowerStr.pop_back();  // Удаляем точку в конце
-                }
-                pos++;
-            } else {
-                lowerStr = "1";  // По умолчанию
-            }
-            
-            // Пропускаем точки
-            if (current().type == TokenType::Dot) {
-                pos++;  // Пропускаем первую точку
-                if (current().type == TokenType::Dot) {
-                    pos++;  // Пропускаем вторую точку, если есть
-                }
-            }
-            
-            // Читаем верхнюю границу
-            string upperStr = "10";  // По умолчанию
-            if (current().type == TokenType::Number || current().type == TokenType::RealLiteral) {
-                upperStr = current().value;
-                pos++;
-            }
-            
-            // Создаём узлы для границ
-            auto lowerBound = make_shared<ASTNode>(ASTNodeType::Number, lowerStr);
-            auto upperBound = make_shared<ASTNode>(ASTNodeType::Number, upperStr);
-            
-            std::cout << "DEBUG: Используем границы массива: [" << lowerStr << ".." << upperStr << "]" << std::endl;
-
-            // Проверяем текущий токен (должна быть закрывающая скобка)
-            std::cout << "DEBUG: Текущий токен: тип=" << static_cast<int>(current().type) << ", значение=" << current().value << std::endl;
-            
-            // Проверяем закрывающую скобку
-            if (current().type == TokenType::RBracket) {
-                pos++;  // Пропускаем ']'
-                std::cout << "DEBUG: Пропущена закрывающая скобка" << std::endl;
-            } else {
-                throw runtime_error("Ожидалась ']' после размера массива");
-            }
-            
-            // Проверяем наличие 'of'
-            std::cout << "DEBUG: Текущий токен (ожидается 'of'): тип=" << static_cast<int>(current().type) 
-                   << ", значение=" << current().value << std::endl;
-            
-            if (current().type == TokenType::Of) {
-                pos++;  // Пропускаем 'of'
-            } else {
-                // Добавляем тип по умолчанию - integer
-                std::cout << "DEBUG: 'of' не найдено, добавляем тип по умолчанию" << std::endl;
-                string elemType = "integer";
-                
-                // Создаём узел для каждого массива
-                for (const auto& name : names) {
-                    auto arrayNode = make_shared<ASTNode>(ASTNodeType::ArrayDecl, name);
-                    arrayNode->children.push_back(lowerBound);
-                    arrayNode->children.push_back(upperBound);
-                    arrayNode->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, elemType));
-                    section->children.push_back(arrayNode);
-                }
-                
-                expect(TokenType::Semicolon, "Ожидалась ';' после объявления переменной");
-                continue;
-            }
-            
-            // Тип элементов массива
-            std::cout << "DEBUG: Текущий токен (ожидается тип): тип=" << static_cast<int>(current().type) 
-                   << ", значение=" << current().value << std::endl;
-            
-            string elemType;
-            if (current().type == TokenType::Identifier || 
-                current().type == TokenType::Integer || 
-                current().type == TokenType::Real || 
-                current().type == TokenType::Boolean || 
-                current().type == TokenType::StringType) {
-                elemType = current().value;
-                pos++;
-            } else {
-                elemType = "integer";  // По умолчанию
-                std::cout << "DEBUG: Тип не найден, используем тип по умолчанию: " << elemType << std::endl;
-            }
-            
-            std::cout << "DEBUG: Используем тип: " << elemType << std::endl;
-
-            // Создаём узел для каждого массива
-            for (const auto& name : names) {
-                auto arrayNode = make_shared<ASTNode>(ASTNodeType::ArrayDecl, name);
-                arrayNode->children.push_back(lowerBound);
-                arrayNode->children.push_back(upperBound);
-                arrayNode->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, elemType));
-                section->children.push_back(arrayNode);
-            }
-            
-            // Проверяем наличие точки с запятой
-            std::cout << "DEBUG: Текущий токен (ожидается ';'): тип=" << static_cast<int>(current().type) 
-                   << ", значение=" << current().value << std::endl;
-            
-            // Используем полную диагностику и специальную обработку
-            std::cout << "DEBUG: Проверка точки с запятой: токен =" << static_cast<int>(current().type) 
-                      << ", значение =" << current().value << std::endl;
-
-            // Добавляем код для обхода проблемы
-            if (current().type == TokenType::Semicolon || current().value == ";") {
-                std::cout << "DEBUG: Найдена точка с запятой, пропускаем" << std::endl;
-                pos++;  // Пропускаем ';'
-                std::cout << "DEBUG: Продолжаем со следующей переменной" << std::endl;
-                continue;  // Переходим к следующей итерации цикла
-            }
-            else {
-                // В крайнем случае просто продолжаем
-                std::cout << "DEBUG: Не найдена точка с запятой, но продолжаем работу" << std::endl;
-                continue;  // Всё равно продолжаем со следующей переменной
-            }
-        }
-        else {
-            throw runtime_error("Ожидался тип или 'array'");
+            pos++;  // съели токен типа
+            break;
+        default:
+            throw runtime_error("Ожидался тип переменной в " + to_string(current().line) + " строчке, " + to_string(current().column) + " позиции");
         }
         expect(TokenType::Semicolon, "Ожидалась ';' после объявления переменных");
+        // Для всех имён создаём отдельные VarDecl с общим типом
+        for (const auto& name : names) {
+            auto decl = make_shared<ASTNode>(ASTNodeType::VarDecl, name);
+            auto typeNode = make_shared<ASTNode>(ASTNodeType::Identifier, typeName);
+            decl->children.push_back(typeNode);
+            section->children.push_back(decl);
+        }
     }
     return section;
 }
 
+
+
 // Разбор for
 shared_ptr<ASTNode> Parser::parseFor() {
     expect(TokenType::For, "Ожидалось 'for'");
-    expect(TokenType::Identifier, "Ожидался идентификатор после 'for'");
-    string varName = tokens[pos - 1].value;
-
-    expect(TokenType::Assign, "Ожидалось ':=' после идентификатора в 'for'");
+    string varName = current().value;
+    expect(TokenType::Identifier, "Ожидался идентификатор переменной цикла");
+    expect(TokenType::Assign, "Ожидалось ':='");
     auto fromExpr = parseExpression();
 
-    // Устанавливаем направление цикла: to (вверх) или downto (вниз)
     bool isDownto = false;
     if (match(TokenType::To)) {
         isDownto = false;
-    } else if (match(TokenType::Downto)) {
+    }
+    else if (match(TokenType::Downto)) {
         isDownto = true;
-    } else {
-        throw runtime_error("Ожидалось 'to' или 'downto' в 'for'");
+    }
+    else {
+        throw runtime_error("Ожидалось 'to' или 'downto'");
     }
 
     auto toExpr = parseExpression();
-    expect(TokenType::Do, "Ожидалось 'do' в 'for'");
+    expect(TokenType::Do, "Ожидалось 'do'");
+    auto body = parseStatement();
 
-    auto bodyStmt = parseStatement();
-
-    auto node = make_shared<ASTNode>(ASTNodeType::ForLoop, varName + (isDownto ? "|downto" : ""));
-    node->children.push_back(fromExpr);
-    node->children.push_back(toExpr);
-    node->children.push_back(bodyStmt);
-
-    return node;
+    auto forNode = make_shared<ASTNode>(ASTNodeType::ForLoop, varName);
+    forNode->children.push_back(fromExpr);
+    forNode->children.push_back(toExpr);
+    forNode->children.push_back(body);
+    if (isDownto)
+        forNode->value += "|downto";
+    return forNode;
 }
 
 // Разбор присваивания: <id> := <выражение>
 shared_ptr<ASTNode> Parser::parseAssignment() {
-    expect(TokenType::Identifier, "Ожидался идентификатор");
-    string name = tokens[pos - 1].value;
+    auto assign = make_shared<ASTNode>(ASTNodeType::Assignment);
+    if (current().type != TokenType::Identifier)
+        throw runtime_error("Ожидался идентификатор в левой части присваивания");
 
-    shared_ptr<ASTNode> leftSide;
+    string name = current().value;
+    pos++;
 
-    // Проверяем, является ли это доступом к элементу массива
-    if (match(TokenType::LBracket)) {
-        auto index = parseExpression();
-        expect(TokenType::RBracket, "Ожидалась ']'");
-
-        leftSide = make_shared<ASTNode>(ASTNodeType::ArrayAccess, name);
-        leftSide->children.push_back(index);
-    }
-    else {
-        leftSide = make_shared<ASTNode>(ASTNodeType::Identifier, name);
+    {
+        assign->children.push_back(make_shared<ASTNode>(ASTNodeType::Identifier, name));
     }
 
-    expect(TokenType::Assign, "Ожидалось ':='");
-    auto rightSide = parseExpression();
-
-    auto node = make_shared<ASTNode>(ASTNodeType::Assignment);
-    node->children.push_back(leftSide);
-    node->children.push_back(rightSide);
-
-    return node;
+    expect(TokenType::Assign, "Ожидался ':='");
+    assign->children.push_back(parseExpression());
+    return assign;
 }
 
-// Разбор вызова процедуры или функции: <id>(...)
-shared_ptr<ASTNode> Parser::parseProcedureCall() {
-    expect(TokenType::Identifier, "Ожидался идентификатор");
-    string name = tokens[pos - 1].value;
 
-    auto node = make_shared<ASTNode>(ASTNodeType::ProcCall, name);
-
-    expect(TokenType::LParen, "Ожидалась '(' после имени процедуры");
-    if (current().type != TokenType::RParen) {
-        node->children.push_back(parseExpression());
-        while (match(TokenType::Comma))
-            node->children.push_back(parseExpression());
-    }
-    expect(TokenType::RParen, "Ожидалась ')' после аргументов процедуры");
-
-    return node;
-}
 
 // Разбор условного оператора if ... then ... [else ...]
 shared_ptr<ASTNode> Parser::parseIf() {
     expect(TokenType::If, "Ожидалось 'if'");
-    auto condition = parseExpression();
-    expect(TokenType::Then, "Ожидалось 'then'");
-    auto thenStmt = parseStatement();
-
     auto node = make_shared<ASTNode>(ASTNodeType::If);
-    node->children = { condition, thenStmt };
-
-    // Необязательная ветка 'else'
+    node->children.push_back(parseExpression());
+    expect(TokenType::Then, "Ожидалось 'then'");
+    node->children.push_back(parseStatement());
     if (match(TokenType::Else))
         node->children.push_back(parseStatement());
-
     return node;
 }
 
 // Разбор цикла while ... do ...
 shared_ptr<ASTNode> Parser::parseWhile() {
     expect(TokenType::While, "Ожидалось 'while'");
-    auto condition = parseExpression();
-    expect(TokenType::Do, "Ожидалось 'do'");
-    auto body = parseStatement();
-
     auto node = make_shared<ASTNode>(ASTNodeType::While);
-    node->children = { condition, body };
+    node->children.push_back(parseExpression());
+    expect(TokenType::Do, "Ожидалось 'do'");
+    node->children.push_back(parseStatement());
     return node;
 }
 
 // Разбор оператора write(...)
 shared_ptr<ASTNode> Parser::parseWrite() {
-    expect(TokenType::Write, "Ожидалось 'write'");
+    expect(TokenType::Write, "Ожидалось 'Write'");
     auto node = make_shared<ASTNode>(ASTNodeType::Write);
-    expect(TokenType::LParen, "Ожидалась '(' после 'write'");
-    // Поддержка одного и более аргументов
+    expect(TokenType::LParen, "Ожидалась '(' после Write");
     if (current().type != TokenType::RParen) {
         node->children.push_back(parseExpression());
         while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
     }
-    expect(TokenType::RParen, "Ожидалась ')' после аргументов 'write'");
+    expect(TokenType::RParen, "Ожидалась ')' после Write");
     return node;
 }
 
@@ -430,30 +275,24 @@ shared_ptr<ASTNode> Parser::parseWrite() {
 shared_ptr<ASTNode> Parser::parseRead() {
     expect(TokenType::Read, "Ожидалось 'read'");
     auto node = make_shared<ASTNode>(ASTNodeType::Read);
-    expect(TokenType::LParen, "Ожидалась '(' после 'read'");
-    // Поддержка одного и более аргументов (чтобы знать, куда читать)
-    if (current().type != TokenType::RParen) {
-        node->children.push_back(parseExpression());
-        while (match(TokenType::Comma))
-            node->children.push_back(parseExpression());
-    }
-    expect(TokenType::RParen, "Ожидалась ')' после аргументов 'read'");
+    expect(TokenType::LParen, "Ожидалась '(' после read");
+    node->children.push_back(parseExpression());
+    expect(TokenType::RParen, "Ожидалась ')' после read");
     return node;
 }
 
 // Разбор оператора writeln(...)
 shared_ptr<ASTNode> Parser::parseWriteln() {
-    expect(TokenType::Writeln, "Ожидалось 'writeln'");
+    expect(TokenType::Writeln, "Ожидалось 'Writeln'");
     auto node = make_shared<ASTNode>(ASTNodeType::Writeln);
-    if (match(TokenType::LParen)) {
-        // Поддержка одного и более аргументов
-        if (current().type != TokenType::RParen) {
+    expect(TokenType::LParen, "Ожидалась '(' после 'Writeln'");
+    // Поддержка zero или более аргументов
+    if (current().type != TokenType::RParen) {
+        node->children.push_back(parseExpression());
+        while (match(TokenType::Comma))
             node->children.push_back(parseExpression());
-            while (match(TokenType::Comma))
-                node->children.push_back(parseExpression());
-        }
-        expect(TokenType::RParen, "Ожидалась ')' после аргументов 'writeln'");
     }
+    expect(TokenType::RParen, "Ожидалась ')' после аргументов 'Writeln'");
     return node;
 }
 
@@ -474,7 +313,7 @@ shared_ptr<ASTNode> Parser::parseReadln() {
 }
 
 // Разбор выражения с поддержкой логических и сравнительных операций
-shared_ptr<ASTNode> Parser::parseLogicalExpression() {
+shared_ptr<ASTNode> Parser::parseExpression() {
     auto left = parseSimpleExpression();
     if (current().type == TokenType::Equal || current().type == TokenType::NotEqual ||
         current().type == TokenType::Less || current().type == TokenType::LessEqual ||
@@ -485,53 +324,6 @@ shared_ptr<ASTNode> Parser::parseLogicalExpression() {
         bin->children = { left, right };
         left = bin;
     }
-    return left;
-}
-
-// Разбор выражения
-shared_ptr<ASTNode> Parser::parseExpression() {
-    // Проверяем оператор 'in'
-    auto left = parseLogicalExpression();
-    
-    if (match(TokenType::Return)) { // Временно используем Return вместо In
-        // Оператор 'in' для проверки наличия элемента в множестве
-        // Ожидаем множество в квадратных скобках [a, b, c, ...]
-        expect(TokenType::LBracket, "Ожидалась '[' после оператора in");
-        
-        // Создаём узел для оператора 'in'
-        auto inNode = make_shared<ASTNode>(ASTNodeType::BinOp, "in");
-        inNode->children.push_back(left);
-        
-        // Создаём массив для хранения элементов множества
-        auto arrayNode = make_shared<ASTNode>(ASTNodeType::Expression, "set");
-        
-        // Считываем элементы множества, разделённые запятыми
-        while (current().type != TokenType::RBracket) {
-            if (current().type == TokenType::StringLiteral) {
-                // Символы в кавычках (например, 'a')
-                auto elem = make_shared<ASTNode>(ASTNodeType::String, current().value);
-                arrayNode->children.push_back(elem);
-                pos++;  // Пропускаем символ
-            } else {
-                // Другие типы элементов
-                arrayNode->children.push_back(parseExpression());
-            }
-            
-            if (current().type == TokenType::Comma) {
-                pos++;  // Пропускаем запятую
-            } else if (current().type != TokenType::RBracket) {
-                throw runtime_error("Ожидалась ',' или ']'");
-            }
-        }
-        
-        expect(TokenType::RBracket, "Ожидалась ']' после списка элементов");
-        
-        // Добавляем массив как правый операнд
-        inNode->children.push_back(arrayNode);
-        
-        return inNode;
-    }
-    
     return left;
 }
 
@@ -567,7 +359,7 @@ shared_ptr<ASTNode> Parser::parseTerm() {
 shared_ptr<ASTNode> Parser::parseFactor() {
     if (match(TokenType::LParen)) {
         auto expr = parseExpression();
-        expect(TokenType::RParen, "Ожидалась ')");
+        expect(TokenType::RParen, "Ожидалась ')'");
         return expr;
     }
     if (current().type == TokenType::RealLiteral) {
@@ -594,31 +386,7 @@ shared_ptr<ASTNode> Parser::parseFactor() {
     if (current().type == TokenType::Identifier) {
         string name = current().value;
         pos++;
-        
-        if (match(TokenType::LParen)) {
-            // Вызов функции: length(s)
-            if (name == "length") {
-                auto funcCall = make_shared<ASTNode>(ASTNodeType::Call, name);
-                // Парсим аргументы функции
-                if (current().type != TokenType::RParen) {
-                    funcCall->children.push_back(parseExpression());
-                    while (match(TokenType::Comma)) {
-                        funcCall->children.push_back(parseExpression());
-                    }
-                }
-                expect(TokenType::RParen, "Ожидалась ')' после аргументов функции");
-                return funcCall;
-            }
-        }
-        
-        if (match(TokenType::LBracket)) {
-            auto index = parseExpression();
-            expect(TokenType::RBracket, "Ожидалась ']'");
-    
-            auto access = make_shared<ASTNode>(ASTNodeType::ArrayAccess, name);
-            access->children.push_back(index);
-            return access;
-        }
+        // Функциональность массивов удалена
         return make_shared<ASTNode>(ASTNodeType::Identifier, name);
     }
     if (match(TokenType::Minus)) {
