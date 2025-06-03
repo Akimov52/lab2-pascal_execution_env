@@ -1,4 +1,0 @@
-program ПриветМир;
-begin
-    write('Привет, мир!');
-end.
