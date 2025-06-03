@@ -1,0 +1,10 @@
+program Ћогика;
+var
+    а, б: boolean;
+begin
+    а := true;
+    б := false;
+    write('а и б = ', а and б);
+    write('а или б = ', а or б);
+    write('не а = ', not а);
+end.

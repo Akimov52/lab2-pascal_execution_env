@@ -1,0 +1,4 @@
+program Привет;
+begin
+    write('Привет, мир!');
+end.

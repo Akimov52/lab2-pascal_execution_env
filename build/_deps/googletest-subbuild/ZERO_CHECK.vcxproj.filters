@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\users\Desktop\lab2-pascal_execution_env\build\_deps\googletest-subbuild\CMakeFiles\a7490121a1295f91b0b5e08c523f3ce4\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{E883351D-AC10-3C58-829E-898A5351B817}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

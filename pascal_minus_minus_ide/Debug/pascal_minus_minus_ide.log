@@ -1,0 +1,9 @@
+﻿cl : командная строка  warning D9035: использование параметра "Gm" нежелательно, он будет удален в следующих выпусках
+  symbol_table.cpp
+  postfix.cpp
+  parser.cpp
+  main.cpp
+  lexer.cpp
+  interpreter.cpp
+  Создание кода...
+  pascal_minus_minus_ide.vcxproj -> C:\Users\users\Desktop\lab2-pascal_execution_env\Debug\pascal_minus_minus_ide.exe

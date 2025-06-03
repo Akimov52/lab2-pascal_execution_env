@@ -1,0 +1,5 @@
+if(EXISTS "C:/Users/users/Desktop/lab2-pascal_execution_env/build/pascal_minus_minus_ide_tests[1]_tests.cmake")
+  include("C:/Users/users/Desktop/lab2-pascal_execution_env/build/pascal_minus_minus_ide_tests[1]_tests.cmake")
+else()
+  add_test(pascal_minus_minus_ide_tests_NOT_BUILT pascal_minus_minus_ide_tests_NOT_BUILT)
+endif()

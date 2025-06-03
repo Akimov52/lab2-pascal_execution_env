@@ -1,0 +1,10 @@
+program —умма„исел;
+var
+    a, b: integer;
+    сумма: integer;
+begin
+    a := 5;
+    b := 3;
+    сумма := a + b;
+    write('—умма = ', сумма);
+end.

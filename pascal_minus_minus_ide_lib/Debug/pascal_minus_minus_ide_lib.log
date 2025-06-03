@@ -1,0 +1,7 @@
+﻿  lexer.cpp
+  parser.cpp
+  postfix.cpp
+  interpreter.cpp
+  symbol_table.cpp
+  Создание кода...
+  pascal_minus_minus_ide_lib.vcxproj -> C:\Users\users\Desktop\lab2-pascal_execution_env\Debug\pascal_minus_minus_ide_lib.lib

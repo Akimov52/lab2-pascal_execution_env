@@ -1,0 +1,11 @@
+program Четное;
+var
+    a: integer;
+begin
+    write('Введите число: ');
+    read(a);
+    if a mod 2 = 0 then
+        write('Четное')
+    else
+        write('Нечетное');
+end.
